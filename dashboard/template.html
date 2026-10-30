@@ -1,14 +1,15 @@
 <title>Lloyd Morning Dashboard</title>
 <meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,600&display=swap">
 <style>
 /* Layout: one column of summary strip, then a two-up grid of panels; every panel opens with a freshness pill, then its chart, then its list. */
 :root{--bg:#f4f6f8;--panel:#ffffff;--fg:#14213d;--muted:#566077;--line:#dde1e8;--grid:#e6e9ef;--accent:#0f766e;--gold:#a8650d;--ok:#15803d;--warn:#b45309;--bad:#b91c1c;
 --s1:#2a78d6;--s2:#eb6834;--s3:#1baf7a;--s4:#eda100;--s5:#e87ba4;--s6:#008300;--s7:#6250d6;--s8:#e34948;--example:#7c3aed;
---serif:Georgia,"Times New Roman",serif;--sans:system-ui,-apple-system,"Segoe UI",sans-serif}
+--serif:"Source Serif 4",Georgia,"Times New Roman",serif;--sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;--shadow:0 1px 2px rgba(20,33,61,.06),0 4px 14px rgba(20,33,61,.05)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1626;--panel:#16213a;--fg:#e8ecf4;--muted:#9aa6bd;--line:#273352;--grid:#223050;--accent:#2dd4bf;--gold:#e6b450;--ok:#4ade80;--warn:#fbbf24;--bad:#f87171;
---s1:#3987e5;--s2:#d95926;--s3:#199e70;--s4:#c98500;--s5:#d55181;--s6:#008300;--s7:#9085e9;--s8:#e66767;--example:#a78bfa;color-scheme:dark}}
+--s1:#3987e5;--s2:#d95926;--s3:#199e70;--s4:#c98500;--s5:#d55181;--s6:#008300;--s7:#9085e9;--s8:#e66767;--example:#a78bfa;--shadow:none;color-scheme:dark}}
 :root[data-theme="dark"]{--bg:#0e1626;--panel:#16213a;--fg:#e8ecf4;--muted:#9aa6bd;--line:#273352;--grid:#223050;--accent:#2dd4bf;--gold:#e6b450;--ok:#4ade80;--warn:#fbbf24;--bad:#f87171;
---s1:#3987e5;--s2:#d95926;--s3:#199e70;--s4:#c98500;--s5:#d55181;--s6:#008300;--s7:#9085e9;--s8:#e66767;--example:#a78bfa;color-scheme:dark}
+--s1:#3987e5;--s2:#d95926;--s3:#199e70;--s4:#c98500;--s5:#d55181;--s6:#008300;--s7:#9085e9;--s8:#e66767;--example:#a78bfa;--shadow:none;color-scheme:dark}
 body{background:var(--bg);color:var(--fg);font:15px/1.5 var(--sans);margin:0;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 .wrap{max-width:1040px;margin:0 auto}
 h1{font:600 28px/1.15 var(--serif);margin:0 0 2px;text-wrap:balance}
@@ -53,6 +54,24 @@ a{color:var(--accent)}
 .dis{font-size:12px;color:var(--muted);margin-top:8px}
 details{margin-top:8px}summary{cursor:pointer;color:var(--muted);font-size:12px}
 @media (prefers-reduced-motion:no-preference){.card{transition:border-color .15s}.card:hover{border-color:var(--accent)}}
+
+h1{font-size:32px;letter-spacing:-.01em}
+.top{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 16px;border-bottom:2px solid var(--fg);padding-bottom:10px;margin-bottom:14px}
+.top .sub{margin:0}
+.card{border-radius:10px;box-shadow:var(--shadow)}
+.kpi{border-radius:10px;box-shadow:var(--shadow);display:grid;gap:2px}
+.kpi i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:1px}
+.grp{font:600 12px/1.3 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:26px 0 10px;display:flex;align-items:center;gap:12px}
+.grp::after{content:"";flex:1;height:1px;background:var(--line)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:8px 0 12px}
+.tile{border:1px solid var(--line);border-radius:8px;padding:10px 12px;display:grid;gap:3px;min-width:0}
+.tile .tt{display:flex;justify-content:space-between;align-items:baseline;gap:6px}
+.tile .tt b{font-size:14px;letter-spacing:.02em}
+.tile .age{font-size:11px;color:var(--ok)}
+.tile.stale .age{color:var(--warn);font-weight:600}
+.tile .px{font:600 24px/1.1 var(--serif);font-variant-numeric:tabular-nums}
+.tile.stale .px{color:var(--muted)}
+.tile .meta{font-size:12px;color:var(--muted)}
 </style>
 <div class="wrap" id="app"></div>
 <script type="application/json" id="data">/*DATA*/</script>
@@ -108,6 +127,7 @@ function spark(vals,color,w,hgt){w=w||110;hgt=hgt||26;var lo=Math.min.apply(null
  sv.appendChild(s('circle',{cx:w-2,cy:hgt-3-(hgt-6)*(vals[e]-lo)/sp,r:2.6,fill:color}));return sv}
 
 function stackBars(box,days,keys,o){
+ if(!days.length){box.appendChild(h('p',{class:'note'},'Nothing collected for this chart yet.'));return}
  var W=box.clientWidth||600,H=o.h||170,m={l:30,r:8,t:8,b:22},pw=W-m.l-m.r,ph=H-m.t-m.b,n=days.length,bw=Math.max(3,pw/n*.7);
  var mx=Math.max.apply(null,days.map(function(d){return keys.reduce(function(a,k){return a+(d[k.k]||0)},0)}).concat([1]));mx=Math.ceil(mx/2)*2;
  var sv=s('svg',{width:W,height:H,viewBox:'0 0 '+W+' '+H,role:'img','aria-label':o.label});
@@ -121,6 +141,7 @@ function stackBars(box,days,keys,o){
  sv.addEventListener('pointerleave',function(){t.hidden=true})}
 
 function hbars(box,rows,color,o){
+ if(!rows.length){box.appendChild(h('p',{class:'note'},'Nothing collected for this chart yet.'));return}
  var W=box.clientWidth||600,rh=24,H=rows.length*rh+4,lw=Math.min(190,W*.42),mx=Math.max.apply(null,rows.map(function(r){return r.v}).concat([1]));
  var sv=s('svg',{width:W,height:H,viewBox:'0 0 '+W+' '+H,role:'img','aria-label':o.label});
  rows.forEach(function(r,i){var y=i*rh+2,bw=Math.max(2,(W-lw-48)*r.v/mx);
@@ -146,35 +167,46 @@ function timeline(box,rows,days,o){
  sv.addEventListener('pointerleave',function(){t.hidden=true})}
 
 /* ---- panels ---- */
-function itemsList(items,render){var u=h('ul',{class:'items'});items.forEach(function(i){u.appendChild(h('li',{},render(i)))});return u}
+function itemsList(items,render){if(!items||!items.length)return h('p',{class:'note'},'Nothing to list today.');var u=h('ul',{class:'items'});items.forEach(function(i){u.appendChild(h('li',{},render(i)))});return u}
 function build(){
  app.innerHTML='';charts=[];
- app.appendChild(h('h1',{},'Morning dashboard'));
- app.appendChild(h('p',{class:'sub'},D.dateLong+'. Each panel shows how fresh its source is.'));
+ app.appendChild(h('div',{class:'top'},[h('h1',{},'Morning dashboard'),h('p',{class:'sub'},D.dateLong+'. Built '+D.built)]));
  if(D.example)app.appendChild(h('div',{class:'banner'},'Layout preview. Every number, headline and link on this page is example data, so that the charts can be judged. The scheduled build replaces it with live data.'));
- var k=h('div',{class:'strip'});(D.kpis||[]).forEach(function(x){k.appendChild(h('div',{class:'kpi'},[h('b',{},x.v),h('span',{},x.l)]))});app.appendChild(k);
- var g=h('div',{class:'grid'});app.appendChild(g);
+ var k=h('div',{class:'strip'});(D.kpis||[]).forEach(function(x){var dot=h('i');dot.style.background=x.s==='today'?'var(--ok)':x.s==='none'?'var(--bad)':x.s==='old'?'var(--warn)':'var(--muted)';k.appendChild(h('div',{class:'kpi'},[h('b',{},x.v),h('span',{},[dot,x.l])]))});app.appendChild(k);
+ function grp(n){app.appendChild(h('div',{class:'grp'},n));var x=h('div',{class:'grid'});app.appendChild(x);return x}
+ var g=grp('Markets');
 
  /* shares */
  var S=D.shares,c=card('Shares',S.fresh,true);g.appendChild(c);
- var owned=S.tickers.filter(function(t){return t.owned});
+ var owned=S.tickers.filter(function(t){return t.owned}),watch=S.tickers.filter(function(t){return !t.owned});
  var cols=['var(--s1)','var(--s2)','var(--s3)','var(--s4)'];
- c.appendChild(h('h3',{},'Owned, 90 days, indexed to 100'));
- c.appendChild(legend(owned.map(function(t,i){return[t.t,cols[i]]})));
- c.appendChild(chartBox(function(b){lineChart(b,S.dates,owned.map(function(t,i){return{name:t.t,color:cols[i],v:t.idx}}),{label:'Owned shares indexed to 100 over 90 days',base:100})}));
- c.appendChild(h('h3',{},'All positions'));
- var tb=h('table'),tr=h('tr');['Ticker','','Last','Day','30 days','Trend','As of'].forEach(function(x,i){tr.appendChild(h('th',{class:i===2||i===3||i===4?'n':''},x))});tb.appendChild(tr);
- S.tickers.forEach(function(t){var r=h('tr',{class:t.stale?'stale':''});
-  r.appendChild(h('td',{},t.t));r.appendChild(h('td',{},t.owned?'owned':'watch'));r.appendChild(h('td',{class:'n'},t.cur+fmt(t.last)));
-  r.appendChild(h('td',{class:'n '+(t.chg>=0?'up':'dn')},(t.chg>=0?'+':'')+fmt(t.chg)+'%'));
-  r.appendChild(h('td',{class:'n '+(t.m30>=0?'up':'dn')},(t.m30>=0?'+':'')+fmt(t.m30,1)+'%'));
-  var td=h('td');td.appendChild(spark(t.series,t.m30>=0?'var(--ok)':'var(--bad)'));r.appendChild(td);
+ c.appendChild(h('h3',{},'Holdings'));
+ var tiles=h('div',{class:'tiles'});
+ owned.forEach(function(t,i){var up=t.chg>=0,tile=h('div',{class:'tile'+(t.stale?' stale':'')});
+  tile.appendChild(h('div',{class:'tt'},[h('b',{},t.t),h('span',{class:'age'},t.stale?'STALE, '+t.asof:t.asof)]));
+  tile.appendChild(h('div',{class:'px'},t.cur+fmt(t.last)));
+  tile.appendChild(h('div',{class:t.stale?'meta':(up?'up':'dn')},(up?'+':'')+fmt(t.chg)+'% on the day'));
+  if(t.series&&t.series.length>2)tile.appendChild(spark(t.series,cols[i%4],150,34));else tile.appendChild(h('div',{class:'meta'},'Trend line builds as days are recorded'));
+  tiles.appendChild(tile)});
+ c.appendChild(tiles);
+ if(S.dates&&S.dates.length>1){
+  c.appendChild(h('h3',{},'Owned, indexed to 100'));
+  c.appendChild(legend(owned.map(function(t,i){return[t.t,cols[i%4]]})));
+  c.appendChild(chartBox(function(b){lineChart(b,S.dates,owned.map(function(t,i){return{name:t.t,color:cols[i%4],v:t.idx}}),{label:'Owned shares indexed to 100',base:100})}))}
+ c.appendChild(h('h3',{},'Watchlist'));
+ var tb=h('table'),tr=h('tr');['Ticker','Last','Day','30 days','Trend','As of'].forEach(function(x,i){tr.appendChild(h('th',{class:i>0&&i<4?'n':''},x))});tb.appendChild(tr);
+ watch.forEach(function(t){var r=h('tr',{class:t.stale?'stale':''});
+  r.appendChild(h('td',{},t.t));r.appendChild(h('td',{class:'n'},t.cur+fmt(t.last)));
+  r.appendChild(h('td',{class:'n '+(t.stale?'':(t.chg>=0?'up':'dn'))},(t.chg>=0?'+':'')+fmt(t.chg)+'%'));
+  r.appendChild(h('td',{class:'n'},t.series&&t.series.length>2?((t.m30>=0?'+':'')+fmt(t.m30,1)+'%'):'-'));
+  var td=h('td');if(t.series&&t.series.length>2)td.appendChild(spark(t.series,t.m30>=0?'var(--ok)':'var(--bad)'));else td.appendChild(document.createTextNode('-'));r.appendChild(td);
   r.appendChild(h('td',{},t.asof+(t.stale?' STALE':'')));tb.appendChild(r)});
  c.appendChild(h('div',{class:'tw'},tb));
  c.appendChild(h('h3',{},'Catalysts inside 30 days'));
  c.appendChild(S.catalysts.length?itemsList(S.catalysts,function(x){return[h('span',{},[h('span',{class:'tag'},x.t),x.what]),h('span',{class:'meta'},x.when)]}):h('p',{class:'note'},'No catalyst confirmed inside 30 days.'));
  c.appendChild(h('p',{class:'dis'},'Information only, not financial advice.'));
 
+ g=grp('Clinical and practice');
  /* NICE */
  var N=D.nice;c=card('NICE guidance',N.fresh);g.appendChild(c);
  c.appendChild(h('h3',{},'Published per day, last 30 days'));
@@ -194,13 +226,14 @@ function build(){
  c.appendChild(itemsList(P.items,function(i){return[link(i.url,i.title),h('span',{class:'meta'},[h('span',{class:'tag'},i.src),shortDate(i.date)])]}));
 
  /* ICB */
- var I=D.icb;c=card('ICB referral pages',I.fresh);g.appendChild(c);
+ var I=D.icb;c=card('ICB referral pages',I.fresh,true);g.appendChild(c);
  c.appendChild(h('h3',{},'Page changes, last 30 days'));
  c.appendChild(legend([['Changed','var(--s2)'],['No change','var(--muted)'],['Not reachable','var(--bad)']]));
  c.appendChild(chartBox(function(b){timeline(b,I.rows,I.days,{label:'Days on which each referral page changed'})}));
  c.appendChild(h('h3',{},'Today'));
  c.appendChild(itemsList(I.today,function(i){return[link(i.url,i.name),h('span',{class:'meta'},[h('span',{class:'tag'},i.status),i.note])]}));
 
+ g=grp('Technology');
  /* GitHub */
  var G=D.github;c=card('GitHub',G.fresh);g.appendChild(c);
  c.appendChild(h('h3',{},'Stars on today’s picks'));
