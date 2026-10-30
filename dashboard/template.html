@@ -1,0 +1,239 @@
+<title>Lloyd Morning Dashboard</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: one column of summary strip, then a two-up grid of panels; every panel opens with a freshness pill, then its chart, then its list. */
+:root{--bg:#f4f6f8;--panel:#ffffff;--fg:#14213d;--muted:#566077;--line:#dde1e8;--grid:#e6e9ef;--accent:#0f766e;--gold:#a8650d;--ok:#15803d;--warn:#b45309;--bad:#b91c1c;
+--s1:#2a78d6;--s2:#eb6834;--s3:#1baf7a;--s4:#eda100;--s5:#e87ba4;--s6:#008300;--s7:#6250d6;--s8:#e34948;--example:#7c3aed;
+--serif:Georgia,"Times New Roman",serif;--sans:system-ui,-apple-system,"Segoe UI",sans-serif}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1626;--panel:#16213a;--fg:#e8ecf4;--muted:#9aa6bd;--line:#273352;--grid:#223050;--accent:#2dd4bf;--gold:#e6b450;--ok:#4ade80;--warn:#fbbf24;--bad:#f87171;
+--s1:#3987e5;--s2:#d95926;--s3:#199e70;--s4:#c98500;--s5:#d55181;--s6:#008300;--s7:#9085e9;--s8:#e66767;--example:#a78bfa;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0e1626;--panel:#16213a;--fg:#e8ecf4;--muted:#9aa6bd;--line:#273352;--grid:#223050;--accent:#2dd4bf;--gold:#e6b450;--ok:#4ade80;--warn:#fbbf24;--bad:#f87171;
+--s1:#3987e5;--s2:#d95926;--s3:#199e70;--s4:#c98500;--s5:#d55181;--s6:#008300;--s7:#9085e9;--s8:#e66767;--example:#a78bfa;color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font:15px/1.5 var(--sans);margin:0;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1040px;margin:0 auto}
+h1{font:600 28px/1.15 var(--serif);margin:0 0 2px;text-wrap:balance}
+h2{font:600 16px/1.3 var(--sans);margin:0;letter-spacing:.01em}
+h3{font:600 12px/1.3 var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:14px 0 4px}
+.sub{color:var(--muted);margin:0 0 14px}
+.banner{border:1px dashed var(--example);color:var(--example);border-radius:6px;padding:8px 12px;margin:0 0 14px;font-size:13px}
+.strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:10px 12px;min-width:0}
+.kpi b{display:block;font:600 22px/1.1 var(--serif);font-variant-numeric:tabular-nums}
+.kpi span{font-size:12px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,470px),1fr));gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px 16px;min-width:0}
+.card.wide{grid-column:1/-1}
+.head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:6px}
+.pill{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:1px 8px;border-radius:99px;border:1px solid currentColor;white-space:nowrap}
+.today{color:var(--ok)}.old{color:var(--warn)}.none{color:var(--bad)}.link{color:var(--muted)}
+.note{font-size:12px;color:var(--muted);margin:0 0 6px}
+.chart{position:relative;width:100%;min-height:40px}
+.chart svg{display:block;max-width:100%;overflow:visible}
+.chart text{fill:var(--muted);font:11px var(--sans)}
+.chart .lbl{fill:var(--fg)}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:var(--muted);margin:4px 0}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.tip{position:absolute;pointer-events:none;background:var(--fg);color:var(--bg);font-size:12px;padding:4px 8px;border-radius:4px;white-space:nowrap;z-index:5;transform:translate(-50%,-110%)}
+.tip[hidden]{display:none}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:5px 8px;border-bottom:1px solid var(--line);white-space:nowrap;vertical-align:middle}
+th{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+td.n,th.n{text-align:right}
+.up{color:var(--ok)}.dn{color:var(--bad)}tr.stale td{color:var(--muted)}
+.spark{display:block}
+ul.items{list-style:none;margin:6px 0 0;padding:0}
+ul.items li{padding:6px 0;border-bottom:1px solid var(--line);display:grid;gap:2px}
+ul.items li:last-child{border-bottom:0}
+ul.items .meta{font-size:12px;color:var(--muted)}
+a{color:var(--accent)}
+.tag{font-size:11px;border:1px solid var(--line);border-radius:4px;padding:0 5px;color:var(--muted);margin-right:6px}
+.arch a{display:inline-block;margin:0 12px 6px 0}
+.foot{margin-top:22px;font-size:12px;color:var(--muted)}
+.dis{font-size:12px;color:var(--muted);margin-top:8px}
+details{margin-top:8px}summary{cursor:pointer;color:var(--muted);font-size:12px}
+@media (prefers-reduced-motion:no-preference){.card{transition:border-color .15s}.card:hover{border-color:var(--accent)}}
+</style>
+<div class="wrap" id="app"></div>
+<script type="application/json" id="data">/*DATA*/</script>
+<script>
+(function(){
+var D=JSON.parse(document.getElementById('data').textContent);
+var app=document.getElementById('app'),NS='http://www.w3.org/2000/svg',charts=[];
+function h(tag,attrs,kids){var e=document.createElement(tag);for(var k in (attrs||{})){if(k==='class')e.className=attrs[k];else if(k==='html')e.innerHTML=attrs[k];else e.setAttribute(k,attrs[k]);}
+ [].concat(kids==null?[]:kids).forEach(function(c){e.appendChild(typeof c==='string'?document.createTextNode(c):c)});return e}
+function s(tag,attrs,kids){var e=document.createElementNS(NS,tag);for(var k in (attrs||{}))e.setAttribute(k,attrs[k]);[].concat(kids==null?[]:kids).forEach(function(c){e.appendChild(typeof c==='string'?document.createTextNode(c):c)});return e}
+function esc(t){return String(t==null?'':t)}
+function link(u,t){return h('a',{href:u,target:'_blank',rel:'noopener'},t)}
+function fmt(n,d){return Number(n).toLocaleString('en-GB',{minimumFractionDigits:d==null?2:d,maximumFractionDigits:d==null?2:d})}
+function shortDate(d){var x=new Date(d+'T12:00:00');return x.getDate()+' '+x.toLocaleString('en-GB',{month:'short'})}
+function pill(state,text){return h('span',{class:'pill '+state},text)}
+var tip=null;
+function tipFor(box){var t=h('div',{class:'tip'});t.hidden=true;box.appendChild(t);return t}
+function showTip(box,t,x,y,txt){t.textContent=txt;t.hidden=false;t.style.left=x+'px';t.style.top=y+'px'}
+function legend(items){return h('div',{class:'legend'},items.map(function(i){var b=h('i');b.style.background=i[1];return h('span',{},[b,i[0]])}))}
+function card(title,fresh,wide){var c=h('section',{class:'card'+(wide?' wide':'')});var f=fresh||{};
+ c.appendChild(h('div',{class:'head'},[h('h2',{},title),pill(f.state||'none',f.label||'Not collected today')]));
+ if(f.note)c.appendChild(h('p',{class:'note'},f.note));return c}
+function chartBox(draw){var b=h('div',{class:'chart'});charts.push({box:b,draw:draw});return b}
+
+/* ---- charts ---- */
+function lineChart(box,dates,series,o){
+ var W=box.clientWidth||600,H=o.h||210,m={l:40,r:12,t:10,b:24},pw=W-m.l-m.r,ph=H-m.t-m.b;
+ var all=[];series.forEach(function(x){x.v.forEach(function(v){if(v!=null)all.push(v)})});
+ if(!all.length||dates.length<2){box.appendChild(h('p',{class:'note'},'No price history yet. The line chart fills in as each day is recorded.'));return}
+ var lo=Math.floor(Math.min.apply(null,all)/5)*5,hi=Math.ceil(Math.max.apply(null,all)/5)*5;if(hi===lo)hi=lo+5;
+ function X(i){return m.l+pw*i/(dates.length-1)}function Y(v){return m.t+ph*(1-(v-lo)/(hi-lo))}
+ var sv=s('svg',{width:W,height:H,viewBox:'0 0 '+W+' '+H,role:'img','aria-label':o.label});
+ for(var g=0;g<=4;g++){var v=lo+(hi-lo)*g/4,y=Y(v);sv.appendChild(s('line',{x1:m.l,x2:W-m.r,y1:y,y2:y,stroke:'var(--grid)'}));sv.appendChild(s('text',{x:m.l-6,y:y+4,'text-anchor':'end'},fmt(v,0)))}
+ if(o.base!=null){var yb=Y(o.base);sv.appendChild(s('line',{x1:m.l,x2:W-m.r,y1:yb,y2:yb,stroke:'var(--muted)','stroke-dasharray':'3 3'}))}
+ [0,Math.floor(dates.length/2),dates.length-1].forEach(function(i){sv.appendChild(s('text',{x:X(i),y:H-6,'text-anchor':i===0?'start':i===dates.length-1?'end':'middle'},shortDate(dates[i])))});
+ series.forEach(function(x){var p='';x.v.forEach(function(v,i){if(v!=null)p+=(p?'L':'M')+X(i).toFixed(1)+' '+Y(v).toFixed(1)});
+  sv.appendChild(s('path',{d:p,fill:'none',stroke:x.color,'stroke-width':2,'stroke-linejoin':'round','stroke-linecap':'round'}));
+  var li=x.v.length-1;while(li>0&&x.v[li]==null)li--;
+  sv.appendChild(s('circle',{cx:X(li),cy:Y(x.v[li]),r:4,fill:x.color,stroke:'var(--panel)','stroke-width':2}))});
+ var cross=s('line',{y1:m.t,y2:m.t+ph,stroke:'var(--muted)',visibility:'hidden'});sv.appendChild(cross);
+ var hit=s('rect',{x:m.l,y:m.t,width:pw,height:ph,fill:'transparent'});sv.appendChild(hit);
+ box.appendChild(sv);var t=tipFor(box);
+ function mv(ev){var r=sv.getBoundingClientRect(),px=(ev.clientX-r.left)*(W/r.width),i=Math.max(0,Math.min(dates.length-1,Math.round((px-m.l)/pw*(dates.length-1))));
+  cross.setAttribute('x1',X(i));cross.setAttribute('x2',X(i));cross.setAttribute('visibility','visible');
+  showTip(box,t,X(i),m.t+8,shortDate(dates[i])+'  '+series.map(function(x){return x.name+' '+(x.v[i]==null?'-':fmt(x.v[i],1))}).join('  '))}
+ hit.addEventListener('pointermove',mv);hit.addEventListener('pointerleave',function(){cross.setAttribute('visibility','hidden');t.hidden=true})}
+
+function spark(vals,color,w,hgt){w=w||110;hgt=hgt||26;var lo=Math.min.apply(null,vals),hi=Math.max.apply(null,vals),sp=hi-lo||1;
+ var p=vals.map(function(v,i){return(i?'L':'M')+(2+(w-4)*i/(vals.length-1)).toFixed(1)+' '+(hgt-3-(hgt-6)*(v-lo)/sp).toFixed(1)}).join('');
+ var e=vals.length-1,sv=s('svg',{width:w,height:hgt,class:'spark','aria-hidden':'true'});
+ sv.appendChild(s('path',{d:p+'L'+(w-2)+' '+(hgt-1)+'L2 '+(hgt-1)+'Z',fill:color,opacity:.12}));
+ sv.appendChild(s('path',{d:p,fill:'none',stroke:color,'stroke-width':1.6}));
+ sv.appendChild(s('circle',{cx:w-2,cy:hgt-3-(hgt-6)*(vals[e]-lo)/sp,r:2.6,fill:color}));return sv}
+
+function stackBars(box,days,keys,o){
+ var W=box.clientWidth||600,H=o.h||170,m={l:30,r:8,t:8,b:22},pw=W-m.l-m.r,ph=H-m.t-m.b,n=days.length,bw=Math.max(3,pw/n*.7);
+ var mx=Math.max.apply(null,days.map(function(d){return keys.reduce(function(a,k){return a+(d[k.k]||0)},0)}).concat([1]));mx=Math.ceil(mx/2)*2;
+ var sv=s('svg',{width:W,height:H,viewBox:'0 0 '+W+' '+H,role:'img','aria-label':o.label});
+ [0,.5,1].forEach(function(g){var y=m.t+ph*(1-g);sv.appendChild(s('line',{x1:m.l,x2:W-m.r,y1:y,y2:y,stroke:'var(--grid)'}));sv.appendChild(s('text',{x:m.l-5,y:y+4,'text-anchor':'end'},String(Math.round(mx*g))))});
+ var t;days.forEach(function(d,i){var x=m.l+pw*(i+.5)/n-bw/2,acc=0;
+  keys.forEach(function(k){var v=d[k.k]||0;if(!v)return;var hh=ph*v/mx,y=m.t+ph-ph*acc/mx-hh;acc+=v;
+   var r=s('rect',{x:x,y:y+1,width:bw,height:Math.max(1,hh-2),fill:k.color,rx:2});r.dataset.tip=shortDate(d.d)+'  '+k.name+' '+v;sv.appendChild(r)});
+  if(i%Math.ceil(n/6)===0)sv.appendChild(s('text',{x:x+bw/2,y:H-6,'text-anchor':'middle'},shortDate(d.d)))});
+ box.appendChild(sv);t=tipFor(box);
+ sv.addEventListener('pointermove',function(ev){var r=ev.target;if(r.dataset&&r.dataset.tip){var b=box.getBoundingClientRect();showTip(box,t,ev.clientX-b.left,ev.clientY-b.top,r.dataset.tip)}else t.hidden=true});
+ sv.addEventListener('pointerleave',function(){t.hidden=true})}
+
+function hbars(box,rows,color,o){
+ var W=box.clientWidth||600,rh=24,H=rows.length*rh+4,lw=Math.min(190,W*.42),mx=Math.max.apply(null,rows.map(function(r){return r.v}).concat([1]));
+ var sv=s('svg',{width:W,height:H,viewBox:'0 0 '+W+' '+H,role:'img','aria-label':o.label});
+ rows.forEach(function(r,i){var y=i*rh+2,bw=Math.max(2,(W-lw-48)*r.v/mx);
+  var lab=r.l.length>26?r.l.slice(0,25)+'…':r.l;sv.appendChild(s('text',{x:lw-8,y:y+14,'text-anchor':'end',class:'lbl'},lab));
+  var b=s('rect',{x:lw,y:y+3,width:bw,height:14,fill:r.c||color,rx:3});b.dataset.tip=r.l+': '+r.v;sv.appendChild(b);
+  sv.appendChild(s('text',{x:lw+bw+6,y:y+14},o.fmt?o.fmt(r.v):String(r.v)))});
+ box.appendChild(sv);var t=tipFor(box);
+ sv.addEventListener('pointermove',function(ev){var r=ev.target;if(r.dataset&&r.dataset.tip){var b=box.getBoundingClientRect();showTip(box,t,ev.clientX-b.left,ev.clientY-b.top,r.dataset.tip)}else t.hidden=true});
+ sv.addEventListener('pointerleave',function(){t.hidden=true})}
+
+function timeline(box,rows,days,o){
+ if(!rows.length||!days.length){box.appendChild(h('p',{class:'note'},'No page checks recorded yet.'));return}
+ var W=box.clientWidth||600,lw=Math.min(170,W*.36),rh=26,H=rows.length*rh+22,n=days.length,cw=(W-lw-8)/n;
+ var sv=s('svg',{width:W,height:H,viewBox:'0 0 '+W+' '+H,role:'img','aria-label':o.label});
+ rows.forEach(function(r,i){var y=i*rh+4;sv.appendChild(s('text',{x:lw-8,y:y+15,'text-anchor':'end',class:'lbl'},r.name));
+  sv.appendChild(s('line',{x1:lw,x2:W-8,y1:y+12,y2:y+12,stroke:'var(--grid)'}));
+  days.forEach(function(d,j){var st=r.days[d],cx=lw+cw*(j+.5);if(!st)return;
+   var c=s('circle',{cx:cx,cy:y+12,r:st==='changed'?6:3.2,fill:st==='changed'?'var(--s2)':st==='gap'?'none':'var(--muted)',stroke:st==='gap'?'var(--bad)':'var(--panel)','stroke-width':st==='gap'?1.5:2});
+   c.dataset.tip=r.name+'  '+shortDate(d)+'  '+(st==='changed'?'page changed':st==='gap'?'not reachable':'no change');sv.appendChild(c)})});
+ [0,Math.floor(n/2),n-1].forEach(function(j){sv.appendChild(s('text',{x:lw+cw*(j+.5),y:H-4,'text-anchor':j===0?'start':j===n-1?'end':'middle'},shortDate(days[j])))});
+ box.appendChild(sv);var t=tipFor(box);
+ sv.addEventListener('pointermove',function(ev){var r=ev.target;if(r.dataset&&r.dataset.tip){var b=box.getBoundingClientRect();showTip(box,t,ev.clientX-b.left,ev.clientY-b.top,r.dataset.tip)}else t.hidden=true});
+ sv.addEventListener('pointerleave',function(){t.hidden=true})}
+
+/* ---- panels ---- */
+function itemsList(items,render){var u=h('ul',{class:'items'});items.forEach(function(i){u.appendChild(h('li',{},render(i)))});return u}
+function build(){
+ app.innerHTML='';charts=[];
+ app.appendChild(h('h1',{},'Morning dashboard'));
+ app.appendChild(h('p',{class:'sub'},D.dateLong+'. Each panel shows how fresh its source is.'));
+ if(D.example)app.appendChild(h('div',{class:'banner'},'Layout preview. Every number, headline and link on this page is example data, so that the charts can be judged. The scheduled build replaces it with live data.'));
+ var k=h('div',{class:'strip'});(D.kpis||[]).forEach(function(x){k.appendChild(h('div',{class:'kpi'},[h('b',{},x.v),h('span',{},x.l)]))});app.appendChild(k);
+ var g=h('div',{class:'grid'});app.appendChild(g);
+
+ /* shares */
+ var S=D.shares,c=card('Shares',S.fresh,true);g.appendChild(c);
+ var owned=S.tickers.filter(function(t){return t.owned});
+ var cols=['var(--s1)','var(--s2)','var(--s3)','var(--s4)'];
+ c.appendChild(h('h3',{},'Owned, 90 days, indexed to 100'));
+ c.appendChild(legend(owned.map(function(t,i){return[t.t,cols[i]]})));
+ c.appendChild(chartBox(function(b){lineChart(b,S.dates,owned.map(function(t,i){return{name:t.t,color:cols[i],v:t.idx}}),{label:'Owned shares indexed to 100 over 90 days',base:100})}));
+ c.appendChild(h('h3',{},'All positions'));
+ var tb=h('table'),tr=h('tr');['Ticker','','Last','Day','30 days','Trend','As of'].forEach(function(x,i){tr.appendChild(h('th',{class:i===2||i===3||i===4?'n':''},x))});tb.appendChild(tr);
+ S.tickers.forEach(function(t){var r=h('tr',{class:t.stale?'stale':''});
+  r.appendChild(h('td',{},t.t));r.appendChild(h('td',{},t.owned?'owned':'watch'));r.appendChild(h('td',{class:'n'},t.cur+fmt(t.last)));
+  r.appendChild(h('td',{class:'n '+(t.chg>=0?'up':'dn')},(t.chg>=0?'+':'')+fmt(t.chg)+'%'));
+  r.appendChild(h('td',{class:'n '+(t.m30>=0?'up':'dn')},(t.m30>=0?'+':'')+fmt(t.m30,1)+'%'));
+  var td=h('td');td.appendChild(spark(t.series,t.m30>=0?'var(--ok)':'var(--bad)'));r.appendChild(td);
+  r.appendChild(h('td',{},t.asof+(t.stale?' STALE':'')));tb.appendChild(r)});
+ c.appendChild(h('div',{class:'tw'},tb));
+ c.appendChild(h('h3',{},'Catalysts inside 30 days'));
+ c.appendChild(S.catalysts.length?itemsList(S.catalysts,function(x){return[h('span',{},[h('span',{class:'tag'},x.t),x.what]),h('span',{class:'meta'},x.when)]}):h('p',{class:'note'},'No catalyst confirmed inside 30 days.'));
+ c.appendChild(h('p',{class:'dis'},'Information only, not financial advice.'));
+
+ /* NICE */
+ var N=D.nice;c=card('NICE guidance',N.fresh);g.appendChild(c);
+ c.appendChild(h('h3',{},'Published per day, last 30 days'));
+ c.appendChild(legend([['Guideline','var(--s1)'],['Technology appraisal','var(--s2)'],['Quality standard','var(--s3)']]));
+ c.appendChild(chartBox(function(b){stackBars(b,N.perDay,[{k:'guideline',name:'Guideline',color:'var(--s1)'},{k:'ta',name:'Technology appraisal',color:'var(--s2)'},{k:'qs',name:'Quality standard',color:'var(--s3)'}],{label:'NICE publications per day by type'})}));
+ c.appendChild(h('h3',{},'Relevant to general practice'));
+ c.appendChild(itemsList(N.items,function(i){return[link(i.url,i.title),h('span',{class:'meta'},[h('span',{class:'tag'},i.type),shortDate(i.date)+'. '+i.why])]}));
+
+ /* GP news */
+ var P=D.news;c=card('GP news',P.fresh);g.appendChild(c);
+ c.appendChild(h('h3',{},'Stories per day by source'));
+ c.appendChild(legend([['Pulse','var(--s1)'],['GPonline','var(--s2)'],['BMJ','var(--s3)']]));
+ c.appendChild(chartBox(function(b){stackBars(b,P.perDay,[{k:'pulse',name:'Pulse',color:'var(--s1)'},{k:'gponline',name:'GPonline',color:'var(--s2)'},{k:'bmj',name:'BMJ',color:'var(--s3)'}],{label:'GP news stories per day by source'})}));
+ c.appendChild(h('h3',{},'What the week is about'));
+ c.appendChild(chartBox(function(b){hbars(b,P.topics.map(function(x){return{l:x.name,v:x.n}}),'var(--s7)',{label:'GP news by topic'})}));
+ c.appendChild(h('h3',{},'Top stories'));
+ c.appendChild(itemsList(P.items,function(i){return[link(i.url,i.title),h('span',{class:'meta'},[h('span',{class:'tag'},i.src),shortDate(i.date)])]}));
+
+ /* ICB */
+ var I=D.icb;c=card('ICB referral pages',I.fresh);g.appendChild(c);
+ c.appendChild(h('h3',{},'Page changes, last 30 days'));
+ c.appendChild(legend([['Changed','var(--s2)'],['No change','var(--muted)'],['Not reachable','var(--bad)']]));
+ c.appendChild(chartBox(function(b){timeline(b,I.rows,I.days,{label:'Days on which each referral page changed'})}));
+ c.appendChild(h('h3',{},'Today'));
+ c.appendChild(itemsList(I.today,function(i){return[link(i.url,i.name),h('span',{class:'meta'},[h('span',{class:'tag'},i.status),i.note])]}));
+
+ /* GitHub */
+ var G=D.github;c=card('GitHub',G.fresh);g.appendChild(c);
+ c.appendChild(h('h3',{},'Stars on today’s picks'));
+ c.appendChild(chartBox(function(b){hbars(b,G.items.map(function(x){return{l:x.name,v:x.stars}}),'var(--s1)',{label:'Stars on repositories picked today',fmt:function(v){return v>=1000?(v/1000).toFixed(1)+'k':String(v)}})}));
+ c.appendChild(h('h3',{},'New repos per day by theme'));
+ c.appendChild(legend([['Claude and MCP','var(--s1)'],['NHS and FHIR','var(--s2)'],['Clinical AI','var(--s3)']]));
+ c.appendChild(chartBox(function(b){stackBars(b,G.perDay,[{k:'claude',name:'Claude and MCP',color:'var(--s1)'},{k:'nhs',name:'NHS and FHIR',color:'var(--s2)'},{k:'clin',name:'Clinical AI',color:'var(--s3)'}],{label:'New repositories per day by theme',h:130})}));
+ c.appendChild(itemsList(G.items,function(i){return[link(i.url,i.name),h('span',{class:'meta'},i.line)]}));
+
+ /* AIDB */
+ var A=D.aidb;c=card('AI Daily Brief',A.fresh);g.appendChild(c);
+ c.appendChild(h('p',{},[h('strong',{},A.title+'. '),A.idea]));
+ c.appendChild(h('h3',{},'Other side (Zitron)'));
+ c.appendChild(h('p',{},A.other));
+ c.appendChild(h('h3',{},'GP’s Corner'));
+ c.appendChild(itemsList(A.gp,function(i){return[h('strong',{},i.title),h('span',{class:'meta'},i.body)]}));
+ c.appendChild(h('h3',{},'Calibration ledger, claims by status'));
+ c.appendChild(chartBox(function(b){hbars(b,A.claims.map(function(x){return{l:x.name,v:x.n,c:x.c}}),'var(--s1)',{label:'Open and resolved claims'})}));
+ c.appendChild(h('p',{},[link(A.url,'Open the brief'),' · ',link(A.src,'Source episode')]));
+
+ /* Links to separate feeds */
+ c=card('Kept separate',{state:'link',label:'Link only'});g.appendChild(c);
+ c.appendChild(h('p',{},'The OSA brief runs on the Mac mini with its own checks, and SleepWell figures are deliberately not copied here. The Morning Rush has its own page.'));
+ c.appendChild(h('p',{},[link('https://davids-ai-brief.netlify.app/rush/','The Morning Rush'),' · ',link('https://davids-ai-brief.netlify.app/','AI Daily Brief site')]));
+
+ /* archive */
+ c=card('Archive',{state:'link',label:'Earlier days'},true);c.classList.add('arch');g.appendChild(c);
+ var ar=h('div');(D.archive||[]).forEach(function(d){ar.appendChild(h('a',{href:'archive/'+d+'.html'},shortDate(d)))});
+ if(!(D.archive||[]).length)ar.appendChild(h('span',{class:'note'},'No archived days yet.'));c.appendChild(ar);
+ app.appendChild(h('p',{class:'foot'},'Built '+D.built+'. A panel marked “Not collected today” has no data for today, which is different from a quiet day. Charts use the history kept in data/history.json.'));
+ draw()}
+function draw(){charts.forEach(function(c){c.box.innerHTML='';c.draw(c.box)})}
+build();
+var rt;window.addEventListener('resize',function(){clearTimeout(rt);rt=setTimeout(draw,150)});
+})();
+</script>
