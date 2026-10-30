@@ -1,6 +1,6 @@
 # Draft prompt for the "Daily dashboard builder" scheduled task
 
-Applied to trig_01DdDgdNm3Pv95BxqbS9BFok on 30 Oct 2026. The saved version inlines the data schema (step 5) instead of pointing at build.py, because the scheduled task cannot read this repo.
+Applied to trig_01DdDgdNm3Pv95BxqbS9BFok on 30 Oct 2026; task-health step (3g) and health JSON added later the same day. The live prompt on the task is the authority; this file is a readable summary. The saved version inlines the data schema (step 5) instead of pointing at build.py, because the scheduled task cannot read this repo.
 
 ---
 
@@ -22,6 +22,7 @@ STEPS
    c. GP NEWS: WebFetch Pulse (https://www.pulsetoday.co.uk/news/), GPonline (https://www.gponline.com/news) and the BMJ news pages. Count stories per source per day into history.news. Keep the top 5 for a Harrow GP. topics = counts of this week's stories by theme (contract and funding, workload and access, AI and digital, prescribing, workforce, other).
    d. ICB REFERRALS: fetch https://www.nwlondonicb.nhs.uk/professionals , https://gps.northcentrallondon.icb.nhs.uk , https://clch.nhs.uk/health-professionals/harrow , https://www.cnwl.nhs.uk . Compare a short summary of each page's referral and news content with the summary stored in history.icb.hashes; mark "changed", "same" or "gap" (unreachable) per page per day. Say what changed and the practical action. Flag 2WW, MSK, CLCH SPA and CNWL mental health routes. NWL content is migrating to the NCL site after the April 2026 merger, so note moves.
    e. GITHUB: curl the public API (1 second sleep between calls): orgs anthropics, modelcontextprotocol, nhsdigital, nhsuk, nhsengland (sort=updated, per_page=10) and releases for anthropics/claude-code. At most 6 picks, skip any shown yesterday. Record stars and new repos by theme into history.github. If rate limited, say so on the panel.
+   g. TASK HEALTH (added 30 Oct): one row per scheduled task, judged only by output the run can see, never by the SUCCEEDED flag. list_triggers gives fired_at and finished_at; a run under 30 seconds was dispatched to a sleeping Mac and did not run. Rush verified from the newest commit under rush/src on GitHub; AI brief from the website; dashboard from itself. Mac-only outputs (OSA brief, GitHub digest, portfolio, referral digest) are "unverified" at best, timing only, never content. Statuses: yes, no, unverified, off, due. Written to history.health[date] and to data.health.rows; a "no" on a task due today sends a PushNotification.
    f. AI DAILY BRIEF: read https://davids-ai-brief.netlify.app/ (and the latest edition page, the Zitron counterpoint, GP's Corner and claims.json it links). Do not re-summarise the podcast independently. If the newest edition is more than 2 days old, state "old" with its date.
 4. SleepWell/OSA/AcuPebble/CPAP figures are never copied into the page. The OSA brief is link-only.
 5. Update history.json (append today's rows; keep everything else) and write today's data JSON in the schema the template expects (see dashboard/build.py example() in the repo davidlloyd73-cell/scratch for the exact shape).

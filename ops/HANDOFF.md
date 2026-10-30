@@ -33,6 +33,12 @@ David (73, UK GP, Harrow) wants every daily task to actually run and to land in 
 - Dashboard: private repo for history, run old tasks in parallel for a week, read the AI brief from the existing site.
 - Move Morning Rush to cloud (done), keep AI brief builder on a Mac for now, Mac mini is the single Mac host.
 
+## Progress 30 Oct, late morning (cloud session linked to the Mac mini)
+- Item 5 DONE: task health panel. Template (dashboard/template.html) now renders a "Did everything run?" table from data.health; the live artifact's template/dashboard.html was republished with it (version 1793357721-1e34) and the dashboard task prompt gained step 3g plus the health JSON shape. First live fill is the 08:35 run on 31 Oct.
+- Confirmed from GitHub: ai-daily-brief main is still at Rush Issue 163 (18 Oct). Nothing has been pushed since.
+- Confirmed from the task list: every iMac-bound task (Rush email, GitHub digest, portfolio) "ran" on 30 Oct but finished in 4 to 5 seconds, i.e. the iMac was asleep or the app closed. There is no Issue 174 today.
+- Items 1 and 3 CANNOT be done from a session linked to the Mac mini: the Daily Email folder, the ai-daily-brief clone and the token files all live under /Users/davidlloyd on the iMac, and the device bridge is a sandbox, not the Mac's own Terminal, so `gh auth login` must be run by David on that machine. Blocked on David: (a) add ai-daily-brief as a push source on "Morning Rush (cloud)" in the routines UI; (b) run the catch-up commands in ops/ai-daily-brief-mac-task-changes.md on the iMac; (c) an Alpha Vantage key for item 2.
+
 ## Still to do
 1. On the Mac mini: make git push to ai-daily-brief work with the Mac's own login (run `gh auth login` or use GitHub Desktop credentials; test with `git ls-remote` and a dry push). This single fix unblocks both the Rush and the AI brief tasks. Then push the backlog (see item 3).
 2. Shares: get a free Alpha Vantage key from David, store it in the dashboard task prompt; the task then fetches daily closes (about 100 days) so the trend charts fill at once. Without a key, prices stay stale.

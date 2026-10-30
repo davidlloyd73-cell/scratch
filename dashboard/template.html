@@ -72,6 +72,8 @@ h1{font-size:32px;letter-spacing:-.01em}
 .tile .px{font:600 24px/1.1 var(--serif);font-variant-numeric:tabular-nums}
 .tile.stale .px{color:var(--muted)}
 .tile .meta{font-size:12px;color:var(--muted)}
+.hdot{display:inline-block;width:10px;height:10px;border-radius:50%}
+td.wrap-td{white-space:normal;min-width:220px;font-size:13px;color:var(--muted)}
 </style>
 <div class="wrap" id="app"></div>
 <script type="application/json" id="data">/*DATA*/</script>
@@ -174,6 +176,19 @@ function build(){
  if(D.example)app.appendChild(h('div',{class:'banner'},'Layout preview. Every number, headline and link on this page is example data, so that the charts can be judged. The scheduled build replaces it with live data.'));
  var k=h('div',{class:'strip'});(D.kpis||[]).forEach(function(x){var dot=h('i');dot.style.background=x.s==='today'?'var(--ok)':x.s==='none'?'var(--bad)':x.s==='old'?'var(--warn)':'var(--muted)';k.appendChild(h('div',{class:'kpi'},[h('b',{},x.v),h('span',{},[dot,x.l])]))});app.appendChild(k);
  function grp(n){app.appendChild(h('div',{class:'grp'},n));var x=h('div',{class:'grid'});app.appendChild(x);return x}
+
+ /* task health: one row per scheduled task, judged by verified output, never by the dispatch flag */
+ var HL=D.health;if(HL&&HL.rows){var g0=grp('Did everything run?');c=card('Task health',HL.fresh,true);g0.appendChild(c);
+  var st={yes:['ok','Published today'],no:['bad','Did not publish'],unverified:['warn','Ran, output not checkable'],off:['muted','Switched off'],due:['muted','Not due today']};
+  var ht=h('table'),hr=h('tr');['','Task','Runs on','Due','Last verified output','This morning','Note'].forEach(function(x){hr.appendChild(h('th',{},x))});ht.appendChild(hr);
+  HL.rows.forEach(function(r){var m=st[r.status]||st.unverified,row=h('tr',{class:r.status==='off'||r.status==='due'?'stale':''});
+   var dot=h('i',{class:'hdot',title:m[1]});dot.style.background='var(--'+m[0]+')';row.appendChild(h('td',{},dot));
+   row.appendChild(h('td',{},[h('strong',{},r.name),h('div',{class:'meta'},m[1])]));
+   row.appendChild(h('td',{},r.where||''));row.appendChild(h('td',{},r.due||''));
+   row.appendChild(h('td',{},[r.lastOutput?shortDate(r.lastOutput):'none seen',r.lastLabel?h('div',{class:'meta'},r.lastLabel):'']));
+   row.appendChild(h('td',{},r.run||''));row.appendChild(h('td',{class:'wrap-td'},r.note||''));ht.appendChild(row)});
+  c.appendChild(h('div',{class:'tw'},ht));
+  c.appendChild(h('p',{class:'note'},'A run that finished in under 30 seconds was dispatched to a Mac that was asleep or had the app closed; it did not run. The flag in the task list says SUCCEEDED either way, so this table only trusts output it can see.'))}
  var g=grp('Markets');
 
  /* shares */

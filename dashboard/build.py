@@ -38,6 +38,14 @@ def example():
     rows[0]["days"][days30[-9]] = "gap"
     return {
         "example": True, "dateLong": "Friday 30 October 2026", "built": "30 Oct 2026, 08:35",
+        "health": {"fresh": {"state": "old", "label": "3 of 7 published", "note": "Example rows. The live build checks GitHub, the website and each task's run length."},
+                   "rows": [{"name": "Daily dashboard builder", "where": "cloud", "due": "08:35 daily", "status": "yes", "lastOutput": "2026-10-30", "lastLabel": "this page", "run": "08:35, 1 min 49 s", "note": ""},
+                            {"name": "Morning Rush (cloud)", "where": "cloud", "due": "06:00 daily", "status": "off", "lastOutput": "", "lastLabel": "", "run": "", "note": "Waiting for the repo to be added as a source."},
+                            {"name": "Morning rush daily email", "where": "iMac", "due": "06:00 daily", "status": "no", "lastOutput": "2026-10-18", "lastLabel": "Issue 163 on the website", "run": "06:13, 5 s", "note": "Finished in 5 s: the iMac was asleep or the app was closed."},
+                            {"name": "AI daily brief site", "where": "iMac", "due": "06:20 daily", "status": "no", "lastOutput": "2026-10-11", "lastLabel": "edition on the website", "run": "06:20, 4 s", "note": "Website has not changed since 11 Oct."},
+                            {"name": "Daily OSA brief", "where": "Mac mini", "due": "07:10 daily", "status": "unverified", "lastOutput": "", "lastLabel": "output is private", "run": "07:18, 6 s", "note": "Content is never shown here; only whether the run was long enough to have worked."},
+                            {"name": "Precision portfolio brief", "where": "iMac", "due": "07:45 weekdays", "status": "no", "lastOutput": "", "lastLabel": "", "run": "07:47, 5 s", "note": "Superseded by the shares panel above."},
+                            {"name": "Harrow referral digest", "where": "iMac", "due": "Mondays 08:10", "status": "due", "lastOutput": "2026-10-19", "lastLabel": "", "run": "", "note": ""}]},
         "kpis": [{"v": "4 of 6", "l": "panels current"}, {"v": "3", "l": "NICE items this week"}, {"v": "1", "l": "referral page changed"}, {"v": "+0.8%", "l": "owned shares, day"}],
         "shares": {"fresh": {"state": "today", "label": "Today", "note": "Example prices; the live build records the as-of date per ticker and greys anything older than one trading day."},
                    "dates": days90, "tickers": tickers,
