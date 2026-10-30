@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.lloyd.prices</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/bin/python3</string>
+    <string>/Users/davidmini/Code/scratch/ops/prices/fetch_prices.py</string>
+    <string>--notify</string>
+  </array>
+  <!-- 06:45 every day. If the Mac is asleep then, it runs when it wakes. -->
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Hour</key><integer>6</integer>
+    <key>Minute</key><integer>45</integer>
+  </dict>
+  <key>StandardOutPath</key>
+  <string>/Users/davidmini/Library/Logs/lloyd-prices.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/davidmini/Library/Logs/lloyd-prices.log</string>
+</dict>
+</plist>
