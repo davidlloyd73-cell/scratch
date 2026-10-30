@@ -1,6 +1,6 @@
 # Draft prompt for the "Daily dashboard builder" scheduled task
 
-Not yet applied to the live task. Review, then it replaces the stored prompt on trig_01DdDgdNm3Pv95BxqbS9BFok.
+Applied to trig_01DdDgdNm3Pv95BxqbS9BFok on 30 Oct 2026. The saved version inlines the data schema (step 5) instead of pointing at build.py, because the scheduled task cannot read this repo.
 
 ---
 

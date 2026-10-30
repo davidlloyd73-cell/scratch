@@ -81,6 +81,7 @@ function chartBox(draw){var b=h('div',{class:'chart'});charts.push({box:b,draw:d
 function lineChart(box,dates,series,o){
  var W=box.clientWidth||600,H=o.h||210,m={l:40,r:12,t:10,b:24},pw=W-m.l-m.r,ph=H-m.t-m.b;
  var all=[];series.forEach(function(x){x.v.forEach(function(v){if(v!=null)all.push(v)})});
+ if(!all.length||dates.length<2){box.appendChild(h('p',{class:'note'},'No price history yet. The line chart fills in as each day is recorded.'));return}
  var lo=Math.floor(Math.min.apply(null,all)/5)*5,hi=Math.ceil(Math.max.apply(null,all)/5)*5;if(hi===lo)hi=lo+5;
  function X(i){return m.l+pw*i/(dates.length-1)}function Y(v){return m.t+ph*(1-(v-lo)/(hi-lo))}
  var sv=s('svg',{width:W,height:H,viewBox:'0 0 '+W+' '+H,role:'img','aria-label':o.label});
@@ -131,6 +132,7 @@ function hbars(box,rows,color,o){
  sv.addEventListener('pointerleave',function(){t.hidden=true})}
 
 function timeline(box,rows,days,o){
+ if(!rows.length||!days.length){box.appendChild(h('p',{class:'note'},'No page checks recorded yet.'));return}
  var W=box.clientWidth||600,lw=Math.min(170,W*.36),rh=26,H=rows.length*rh+22,n=days.length,cw=(W-lw-8)/n;
  var sv=s('svg',{width:W,height:H,viewBox:'0 0 '+W+' '+H,role:'img','aria-label':o.label});
  rows.forEach(function(r,i){var y=i*rh+4;sv.appendChild(s('text',{x:lw-8,y:y+15,'text-anchor':'end',class:'lbl'},r.name));
