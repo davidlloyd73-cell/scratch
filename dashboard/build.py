@@ -4,7 +4,8 @@ import json, sys, math, random, datetime as dt
 from pathlib import Path
 
 here = Path(__file__).parent
-tpl = (here / "template.html").read_text()
+import os
+tpl = (here / os.environ.get("TEMPLATE","template.html")).read_text()
 
 def example():
     rnd = random.Random(7)
@@ -36,7 +37,9 @@ def example():
     for name, p in icb_rows:
         rows.append({"name": name, "days": {d: ("changed" if rnd.random() < p else "same") for d in days30}})
     rows[0]["days"][days30[-9]] = "gap"
+    wx = {"place": "Harrow", "fresh": {"state": "today", "label": "Today"}, "now": {"t": 11, "feels": 8, "code": 3, "wind": 14}, "days": [{"d": (today + dt.timedelta(days=i)).isoformat(), "max": 13 - i, "min": 6 - i // 2, "pop": [20, 70, 40, 5, 55, 30][i], "code": [3, 61, 2, 0, 45, 3][i]} for i in range(6)]}
     return {
+        "weather": wx,
         "example": True, "dateLong": "Friday 30 October 2026", "built": "30 Oct 2026, 08:35",
         "health": {"fresh": {"state": "old", "label": "3 of 7 published", "note": "Example rows. The live build checks GitHub, the website and each task's run length."},
                    "rows": [{"name": "Daily dashboard builder", "where": "cloud", "due": "08:35 daily", "status": "yes", "lastOutput": "2026-10-30", "lastLabel": "this page", "run": "08:35, 1 min 49 s", "note": ""},
