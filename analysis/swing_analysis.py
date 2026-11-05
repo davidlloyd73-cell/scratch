@@ -17,6 +17,7 @@ def party_of(r):
         if r.get(c) not in (None, '', 'NA'): return r[c].lower()
     return 'na'
 def isD(pt): return pt.startswith('democrat')
+def isR(pt): return pt in ('republican', 'independent-republican')   # D10: MN 1992 label 'independent-republican' (bug found 2026-11-05: previously matched 'republican' only)
 # ---------- House: district frame ----------
 raw = collections.defaultdict(list)
 modes = set()
@@ -43,7 +44,7 @@ for key, rs in raw.items():
     for c in cands.values():
         ct = sum(c.values()); tot += ct
         if any(isD(q) for q in c): d += ct; hasD = True      # D5 fusion tickets credited to the candidate's major party
-        elif 'republican' in c: rr += ct; hasR = True
+        elif any(isR(q) for q in c): rr += ct; hasR = True
     status = 'contested' if (hasD and hasR) else ('uncontested' if (hasD or hasR) else 'none')
     placeholder = status == 'uncontested' and tot <= 1       # D6 placeholder votes (candidatevotes=totalvotes=1 or 0)
     D[key] = dict(d=d, r=rr, tot=tot, status=status, placeholder=placeholder, winner=('D' if hasD and not hasR else 'R' if hasR and not hasD else None))
@@ -51,7 +52,7 @@ for key, rs in raw.items():
 PS = collections.defaultdict(lambda: collections.defaultdict(float)); PT = collections.defaultdict(float)
 for r in read(P_PATH):
     y = int(r['year']); s = r['state_po']; pt = party_of(r); v = votes(r)
-    PT[(y, s)] += v; PS[(y, s)]['D' if isD(pt) else 'R' if pt == 'republican' else 'O'] += v
+    PT[(y, s)] += v; PS[(y, s)]['D' if isD(pt) else 'R' if isR(pt) else 'O'] += v
 def pres_margin(y, s=None):
     if s: return 100 * (PS[(y, s)]['D'] - PS[(y, s)]['R']) / PT[(y, s)]
     D_ = sum(v['D'] for (yy, _), v in PS.items() if yy == y); R_ = sum(v['R'] for (yy, _), v in PS.items() if yy == y); T_ = sum(PT[(yy, s_)] for (yy, s_) in PT if yy == y)

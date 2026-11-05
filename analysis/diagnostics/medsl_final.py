@@ -29,13 +29,13 @@ for y in sorted(Y):
     for d in keys:
         cands = Y[y][d] if d in Y[y] else S[y][d]
         tot = sum(sum(c.values()) for c in cands.values()); T += tot
-        dl = sum(v for c in cands.values() for q, v in c.items() if isD(q)); rl = sum(v for c in cands.values() for q, v in c.items() if q == 'republican')
+        dl = sum(v for c in cands.values() for q, v in c.items() if isD(q)); rl = sum(v for c in cands.values() for q, v in c.items() if q in ('republican','independent-republican'))
         D1 += dl; R1 += rl
         d2 = r2 = 0.0
         for c in cands.values():
             ct = sum(c.values())
             if any(isD(q) for q in c): d2 += ct
-            elif 'republican' in c: r2 += ct
+            elif ('republican' in c) or ('independent-republican' in c): r2 += ct
         D2 += d2; R2 += r2
         if d2 == 0: noD += 1
         if r2 == 0: noR += 1
