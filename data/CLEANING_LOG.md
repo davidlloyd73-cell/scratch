@@ -60,3 +60,8 @@ Persistence beta by cycle (as recorded), provisional to final: 1974 0.71 to 0.78
 
 ## Still pending
 Final district-level 2026 returns (counts incomplete). Optional: Clerk PDFs for 1976, 1978, 1980, 1994 to independently confirm the new file's early-year margins.
+
+## Version 2 page (road-to-2028-v2.html)
+- Every 2024 state margin is taken from the validated presidential file (`1976-2024-president.csv`). The earlier Version 1 hand-entered margins had errors in safe states (Mississippi -19.0 vs -22.9, Hawaii 25.2 vs 22.9, Kentucky -29.6 vs -30.5, up to 3.9 pts). No electoral-vote effect. ME-2 (R+9.1) and NE-2 (D+4.6) are from memory and not in the file.
+- Cycle table inside the page (Hp, Hm, Hn, Pp, Pn) is copied from `analysis/results/swing_v2_newfile_1976-2024.json` and `data/derived/clerk_official_national_totals.csv`.
+- Engine check: with persistence, candidates, overlays and all noise switched off, the page reproduces 2024 exactly (226 D electoral votes, popular margin -1.47). Same seed gives identical output.
