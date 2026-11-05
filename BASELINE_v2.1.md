@@ -7,7 +7,7 @@
 - Backtest, six comparable cycles: persistence 4.5 pts vs 4.3 for "nothing changes"; 80% interval 4 of 6, 90% 6 of 6.
 - Default headline (generic Democrat v generic Republican): about 68%, median national margin D+3.8, 90% range R+7.4 to D+17.9.
 - Data: MIT House release 2025-09-10 (user-supplied), MIT presidential 1976-2024, Clerk of the House totals for 1972, 1974, 1992. Checksums in `data/raw/*/SHA256SUMS.txt`.
-- Intended git tag: `v2.1-baseline` at the commit above. The session could not push tags (HTTP 403), so the tag has not been published. To create it from a machine with push access:
+- Git tag `v2.1-baseline` was published on 5 Nov 2026 by the project owner through the GitHub releases page. It points at commit `729baca` (the branch tip when created), which differs from the baseline commit above only by adding this file. The page is byte-identical. (The session could not push tags itself, HTTP 403.) For reference, the equivalent terminal commands were:
 
 ```bash
 git fetch origin claude/dreamy-curie-4f7epy
