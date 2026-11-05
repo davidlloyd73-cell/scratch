@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Road to 2028</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one narrow reading column on top (thesis, evidence), then a two-pane lab (controls | charts) that stacks on phones. */
+:root{
+  --bg:#f6f7f9; --panel:#ffffff; --fg:#14181f; --muted:#5b6575; --faint:#8a93a2; --line:#dde1e8; --grid:#eceff3;
+  --d:#2b64b0; --r:#c4432b; --neutral:#e9ecf1; --on-strong:#ffffff; --warn:#a15c00; --ok:#1f7a4d;
+  --display:'IBM Plex Sans Condensed','Arial Narrow',sans-serif; --body:'IBM Plex Sans',system-ui,sans-serif; --mono:'IBM Plex Mono',ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f131a; --panel:#171c25; --fg:#e8ebf0; --muted:#9aa4b4; --faint:#6f7a8c; --line:#2a3240; --grid:#1f2631;
+  --d:#5d9be8; --r:#ec7a5f; --neutral:#222a36; --on-strong:#ffffff; --warn:#e0a24a; --ok:#58c08b; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f131a; --panel:#171c25; --fg:#e8ebf0; --muted:#9aa4b4; --faint:#6f7a8c; --line:#2a3240; --grid:#1f2631;
+  --d:#5d9be8; --r:#ec7a5f; --neutral:#222a36; --on-strong:#ffffff; --warn:#e0a24a; --ok:#58c08b; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:14px/1.5 var(--body);padding-block:24px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1180px;margin:0 auto}
+h1{font:600 34px/1.1 var(--display);margin:0 0 6px;letter-spacing:-.01em;text-wrap:balance}
+h2{font:600 18px/1.2 var(--display);margin:0 0 4px;text-wrap:balance}
+.lede{max-width:70ch;color:var(--muted);margin:0 0 20px;font-size:15px}
+.kicker{font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:16px;min-width:0}
+.grid2{display:grid;grid-template-columns:minmax(0,320px) minmax(0,1fr);gap:16px;align-items:start}
+.stack{display:grid;gap:16px;min-width:0}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+@media(max-width:820px){.grid2{grid-template-columns:minmax(0,1fr)}}
+.sub{color:var(--muted);font-size:12.5px;margin:0 0 10px}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-bottom:16px}
+.fact{border-top:2px solid var(--fg);padding-top:6px}
+.fact b{display:block;font:500 26px/1.1 var(--mono)}
+.fact span{color:var(--muted);font-size:12.5px}
+.ctl{margin:0 0 14px}
+.ctl label{display:flex;justify-content:space-between;gap:8px;font-weight:500;font-size:13px}
+.ctl output{font-family:var(--mono);color:var(--fg)}
+.ctl small{display:block;color:var(--muted);font-size:11.5px;line-height:1.35;margin-top:2px}
+input[type=range]{width:100%;accent-color:var(--d);margin:4px 0 0}
+.presets{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+button{font:500 12.5px var(--body);color:var(--fg);background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:6px 10px;cursor:pointer}
+button:hover{border-color:var(--faint)} button:focus-visible,input:focus-visible,td:focus-visible{outline:2px solid var(--d);outline-offset:2px}
+button[aria-pressed=true]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.scroll{overflow-x:auto}
+select{font:500 13px var(--body);color:var(--fg);background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:6px 8px;width:100%;margin-top:4px}
+.vp{margin:0 0 14px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.vp label{display:block;font-weight:500;font-size:13px;margin-bottom:8px}
+.vp small{display:block;color:var(--muted);font-size:11.5px;line-height:1.35;margin-top:4px}
+table{border-collapse:collapse;width:100%;font-size:12.5px}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:500 11px var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--faint)}
+td.n,th.n{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+.mx{border-collapse:separate;border-spacing:3px;width:100%;table-layout:fixed}
+.mx th{border:0;padding:4px;text-align:center;text-transform:none;letter-spacing:0;font:500 12px var(--body);color:var(--muted)}
+.mx th.rowh{text-align:right;padding-right:8px;white-space:nowrap;width:104px}
+.mx td{border:0;border-radius:3px;text-align:center;padding:10px 4px;cursor:pointer;font:500 15px var(--mono);font-variant-numeric:tabular-nums;color:var(--fg)}
+.mx td.strong{color:var(--on-strong)}
+.mx td.sel{outline:2px solid var(--fg);outline-offset:1px}
+.tag{display:inline-block;font:500 10.5px var(--mono);padding:1px 6px;border-radius:3px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.tag.ok{color:var(--ok);border-color:var(--ok)} .tag.warn{color:var(--warn);border-color:var(--warn)}
+svg text{font-family:var(--body);fill:var(--muted);font-size:11.5px}
+svg .lab{fill:var(--fg)} svg .mono{font-family:var(--mono)}
+#tip{position:fixed;pointer-events:none;background:var(--fg);color:var(--bg);padding:6px 9px;border-radius:4px;font-size:12px;max-width:260px;z-index:20;display:none;line-height:1.4}
+.note{font-size:12.5px;color:var(--muted);max-width:80ch}
+.note b{color:var(--fg)}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--muted);margin:4px 0 0}
+.sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+</style>
+
+<div class="wrap">
+  <div class="kicker">Forecast model · built 5 Nov 2026, two days after the midterms</div>
+  <h1>Road to 2028</h1>
+  <p class="lede">A Monte Carlo of the 2028 Electoral College, seeded with the 2026 midterm result and run for 21 head-to-head matchups. The midterm swing is large, but the history of out-party midterm waves says only part of it survives into a presidential year. How much survives, how Latino voters behave, and what happens with Iran and the economy are the dials below.</p>
+
+  <div class="facts">
+    <div class="fact"><b>D+13 to 14</b><span>House popular vote, early count (2024 presidential: R+1.5). A swing of about 15 points.</span></div>
+    <div class="fact"><b>62–35</b><span>Latino vote for Democratic House candidates (NBC exit poll), a swing of roughly 22 points from 2024.</span></div>
+    <div class="fact"><b>54–44</b><span>Reported Senate result after seven Democratic flips. Alaska and Mississippi unresolved.</span></div>
+    <div class="fact"><b>34–38%</b><span>Trump approval in the latest polls found (Reuters/Ipsos low of 34%). Iran war judged wrong by 57%.</span></div>
+  </div>
+
+  <div class="grid2">
+    <aside class="panel" aria-label="Model controls">
+      <h2>Dials</h2>
+      <p class="sub">Every change re-runs 3,000 simulated elections per matchup.</p>
+      <div class="presets" id="presets"></div>
+      <div class="vp"><label for="vpd">Democratic running mate<select id="vpd"></select></label><label for="vpr">Republican running mate<select id="vpr"></select></label><small>A running mate who is also the top-of-ticket candidate is ignored. Effects are small by design, see the dials below.</small></div>
+      <div id="controls"></div>
+    </aside>
+
+    <div class="stack">
+      <section class="panel">
+        <h2>Chance the Democrat wins</h2>
+        <p class="sub">Each cell is the share of simulations in which the Democrat reaches 270 electoral votes. Click a cell to inspect that matchup below.</p>
+        <div class="scroll"><table class="mx" id="matrix"></table></div>
+        <div class="legend"><span><i class="sw" style="background:var(--r)"></i>Republican favoured</span><span><i class="sw" style="background:var(--neutral)"></i>Toss-up</span><span><i class="sw" style="background:var(--d)"></i>Democrat favoured</span></div>
+      </section>
+
+      <section class="panel">
+        <h2 id="focusTitle">Every Democrat against one opponent</h2>
+        <div class="presets" id="rsel" aria-label="Choose Republican opponent"></div>
+        <div class="cols">
+          <div><div class="kicker">National popular vote margin</div><p class="sub">Dot is the median. Thick bar is the middle 50% of outcomes, thin line the middle 90%.</p><svg id="forest" role="img" aria-label="Popular vote margin intervals by candidate"></svg></div>
+          <div><div class="kicker">Win probability and its sensitivity</div><p class="sub">Dot is the dial setting. The bar shows the result if the midterm swing fades 20 points of retention faster (left end) or holds 20 points better (right end).</p><svg id="wp" role="img" aria-label="Win probability with sensitivity range"></svg></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2 id="evTitle">Electoral votes</h2>
+        <p class="sub" id="evSub"></p>
+        <svg id="ev" role="img" aria-label="Distribution of Democratic electoral votes"></svg>
+      </section>
+
+      <section class="panel">
+        <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center"><h2 style="margin:0">All matchups as a table</h2><button id="tblBtn" aria-pressed="false">Show table</button></div>
+        <div class="scroll" id="tblWrap" hidden><table id="tbl"></table></div>
+      </section>
+    </div>
+  </div>
+
+  <section class="panel" style="margin-top:16px">
+    <h2>What went into it</h2>
+    <p class="sub">Figures are from search-result summaries of outlets such as CBS, CNBC, NBC, Yahoo, Kalshi and Polymarket pages. I could not open the underlying pages from this environment, so treat every number as approximate until checked.</p>
+    <div class="scroll"><table>
+      <tr><th>Input</th><th>Value used</th><th>Status</th><th>Source</th></tr>
+      <tr><td>House popular vote 2026</td><td>D+13.5 (reported 13 to 14, count incomplete)</td><td><span class="tag ok">Two sources agree</span></td><td>Yahoo News, IBTimes. Final Silver Bulletin average was D+8.8, so polls understated the result.</td></tr>
+      <tr><td>2024 baseline</td><td>R+1.5 nationally, and 2024 state margins</td><td><span class="tag ok">From my own records</span></td><td>Official 2024 results. Not re-checked online.</td></tr>
+      <tr><td>Latino House vote</td><td>D+27 in 2026 against D+6 in 2024</td><td><span class="tag warn">Secondary outlets</span></td><td>Latin Times and aggregators citing NBC. AP VoteCast said about 6 in 10 for Democrats.</td></tr>
+      <tr><td>Latino state shares of electorate</td><td>Approximate, e.g. AZ 20%, TX 27%, NV 19%, FL 20%</td><td><span class="tag warn">My estimate</span></td><td>Rough values from Pew eligible-voter shares. Not looked up.</td></tr>
+      <tr><td>Progressive underperformance</td><td>Penalty dial, default 2 points, applied to Ocasio-Cortez</td><td><span class="tag warn">Not verified</span></td><td>An opinion piece claims about 5 points for Justice Democrats-backed candidates, in primaries. I found no general-election analysis.</td></tr>
+      <tr><td>Still Counting "13 point swing"</td><td>Matches the D+13 to 14 margin above</td><td><span class="tag warn">Podcast not found</span></td><td>I could not find the episode. The margin reported by news outlets is consistent with your recollection.</td></tr>
+      <tr><td>Tariffs</td><td>Persisting: +1.0 for Democrats. Rolled back: −0.5. Default 60% persist.</td><td><span class="tag warn">Effect is my assumption</span></td><td>Polls: Cato/Morning Consult (74% say tariffs raised prices, 53% say they weakened the economy), Reuters/Ipsos Oct 2026 (82%), NYT/Siena June (54% disapprove). I found no tariff court ruling or exit-poll data.</td></tr>
+      <tr><td>AI job losses</td><td>Visible wave: +1.0 for Democrats. Default 35% chance.</td><td><span class="tag warn">Effect is my assumption</span></td><td>Fox News poll (58% expect AI to cut more jobs than it creates), Reuters/Ipsos Oct 2026 (57% say Trump is not taking AI risks seriously enough). Voters trust neither party on AI, hence the modest size.</td></tr>
+      <tr><td>Turnout enthusiasm</td><td>Youth lift 8 pts at 1.0 score, new youth voters D+20, Latino lift 4 pts</td><td><span class="tag warn">All assumptions</span></td><td>No data found on Ocasio-Cortez-driven turnout. Context: CIRCLE (about 50 million eligible young voters, registration up 3% on 2022), Pew Oct 2026 (Latino Democrats more engaged than in 2022), Texas Democratic primary Latino surge in March. Youth share of electorate of 15% is my estimate.</td></tr>
+      <tr><td>Running mates</td><td>Carries 30% of the person's own effect, plus a 2-point bonus in their home state</td><td><span class="tag warn">Research-based, no ticket polls</span></td><td>Heersink and Peterson (2016): 2.67 points home-state advantage, 1884 to 2012. I found no poll of any 2028 ticket, only commentary about a possible Ocasio-Cortez and Mamdani pairing. Kelly and Beshear effects are my assumptions.</td></tr>
+      <tr><td>Candidate strength</td><td>Emerson 16–17 Aug 2026 (n=1,000, ±3): Buttigieg, Ossoff, Newsom +5 over Vance; Harris +4; Ocasio-Cortez −2. Rubio runs 2 to 8 points better than Vance.</td><td><span class="tag ok">Poll found</span></td><td>Shapiro has no 2028 poll in my search, so his value is my assumption.</td></tr>
+      <tr><td>Market odds (win the presidency)</td><td>Ossoff 17 to 22%, Vance 13 to 16%, Ocasio-Cortez 14.6%, Newsom 12 to 14%, Rubio 12%. Republican nomination: Vance 33%, Rubio 17%.</td><td><span class="tag ok">Several markets</span></td><td>Kalshi, Polymarket, PredictIt averages as of 4 Nov. Not used as model inputs. Shown for comparison.</td></tr>
+    </table></div>
+    <p class="note" style="margin-top:12px"><b>How the model works.</b> The 2026 swing is split into a Latino part and a non-Latino part, and each keeps a chosen fraction (retention) into 2028. History points to roughly half: the 2018 House margin of D+8.6 became D+4.5 in 2020, and 2022's R+2.8 became R+1.5 in 2024. On top of that: a national drift (SD 4.5 points, reflecting two-year-ahead forecast error), an Iran outcome (−1.0 for Democrats if the war ends durably, +1.5 if it does not), a recession (+2.5 for Democrats), tariffs and AI job losses (see table; small fixed shifts in either direction), a running mate who carries a fraction of their own effect plus a home-state bonus, an enthusiasm channel (extra youth and Latino turnout, scaled by each candidate's mobilisation score and counted only to the extent the new voters are more Democratic than the electorate), candidate effects from the Emerson poll, correlated regional noise and state noise. Each state's shift is the Latino and non-Latino shifts weighted by that state's Latino share. Nebraska's and Maine's second districts are separate. In a share of simulations set by the compact dial, the winner is decided by the national popular vote instead of electoral votes; the electoral vote chart below still shows the underlying state result.</p>
+    <p class="note"><b>Limits.</b> This is a scenario tool, not a prediction. The default setting is more favourable to Democrats than the prediction markets, where no Democrat is priced above about 22% to win the presidency and Vance and Rubio together sit near 25 to 30%. I did not find a single party-level figure, so I cannot say exactly how far apart we are. The "Markets-ish" preset (about 10 to 12% retention) gives roughly even odds and shows how pessimistic you would need to be to get near them. Redistricting changes do not affect the Electoral College, but turnout machinery, candidate nominations and a Trump third-term or health event are not modelled.</p>
+  </section>
+</div>
+<div id="tip" role="status"></div>
+
+<script>
+(function(){
+"use strict";
+// [abbr, EV, 2024 D margin, Latino share of 2024 electorate (approx), region]
+var ST=[["AL",9,-30.5,.03,"S"],["AK",3,-13.1,.07,"W"],["AZ",11,-5.5,.20,"W"],["AR",6,-30.6,.07,"S"],["CA",54,20.2,.27,"W"],["CO",10,11.0,.13,"W"],["CT",7,14.4,.09,"N"],["DE",3,14.7,.06,"N"],["DC",3,84.6,.10,"N"],["FL",30,-13.1,.20,"S"],["GA",16,-2.2,.04,"S"],["HI",4,25.2,.09,"W"],["ID",4,-36.4,.07,"W"],["IL",19,10.9,.09,"M"],["IN",11,-19.0,.05,"M"],["IA",6,-13.2,.04,"M"],["KS",6,-16.0,.07,"M"],["KY",8,-29.6,.03,"S"],["LA",8,-22.0,.04,"S"],["ME",3,6.9,.01,"N"],["ME-2",1,-9.1,.01,"N"],["MD",10,28.5,.07,"N"],["MA",11,25.2,.06,"N"],["MI",15,-1.4,.03,"M"],["MN",10,4.2,.03,"M"],["MS",6,-19.0,.03,"S"],["MO",10,-18.4,.03,"M"],["MT",4,-20.4,.03,"W"],["NE",4,-20.0,.06,"M"],["NE-2",1,4.6,.06,"M"],["NV",6,-3.1,.19,"W"],["NH",4,2.8,.03,"N"],["NJ",14,5.9,.15,"N"],["NM",5,6.0,.38,"W"],["NY",28,12.6,.13,"N"],["NC",16,-3.2,.04,"S"],["ND",3,-36.4,.03,"M"],["OH",17,-11.2,.03,"M"],["OK",7,-34.3,.06,"S"],["OR",8,14.3,.07,"W"],["PA",19,-1.7,.06,"N"],["RI",4,14.4,.09,"N"],["SC",9,-18.2,.04,"S"],["SD",3,-29.0,.03,"M"],["TN",11,-29.8,.03,"S"],["TX",40,-13.7,.27,"S"],["UT",6,-21.6,.08,"W"],["VT",3,31.9,.02,"N"],["VA",13,5.8,.08,"S"],["WA",12,18.2,.06,"W"],["WV",4,-42.0,.02,"S"],["WI",10,-0.9,.04,"M"],["WY",3,-46.1,.07,"W"]];
+var NS=ST.length, REG={N:0,S:1,M:2,W:3};
+// Candidate effects on national margin (points), plus shift in Latino margin (points)
+var DEM=[
+ {k:"Buttigieg",e:1.0,l:-1,m:.3},{k:"Ossoff",e:1.0,l:0,m:.4},{k:"Newsom",e:.5,l:-2,m:.3},{k:"Shapiro",e:.5,l:-1,a:1,m:.1},
+ {k:"Harris",e:-.5,l:0,m:.3},{k:"Ocasio-Cortez",e:-2.0,l:4,prog:1,m:1},{k:"Generic Democrat",e:0,l:0}];
+var REP=[{k:"Vance",e:1.0,l:0},{k:"Rubio",e:-1.5,l:-8},{k:"Generic Republican",e:0,l:0}];
+var DEF={rn:.40,rl:.40,share:11,pen:2,pIran:55,pRec:25,drift:4.5,npv:20,pTar:60,pAI:35,vpw:.3,home:2,yl:8,ym:20,ll:4};
+var P=Object.assign({},DEF), selD=1, selR=0;
+var VPD=[null,{k:"Ocasio-Cortez",e:-2,l:4,prog:1,h:"NY",m:1},{k:"Shapiro",e:.5,l:-1,h:"PA",m:.1},{k:"Buttigieg",e:1,l:-1,h:"MI",m:.3},{k:"Ossoff",e:1,l:0,h:"GA",m:.4},{k:"Kelly",e:.5,l:0,h:"AZ"},{k:"Beshear",e:.5,l:0,h:"KY"}];
+var VPR=[null,{k:"Vance",e:1.0,l:0,h:"OH"},{k:"Rubio",e:-1.5,l:-8,h:"FL"}];
+var VD=null,VR=null;
+function sidx(a){for(var j=0;j<ST.length;j++)if(ST[j][0]===a)return j;return -1}
+function vpNote(){var t=[];if(VD)t.push(VD.k+" as Democratic VP");if(VR)t.push(VR.k+" as Republican VP");return t.length?" (with "+t.join(", ")+")":""}
+
+var CTL=[
+ {id:"rn",lab:"Non-Latino swing that survives to 2028",min:0,max:100,step:5,unit:"%",f:100,help:"The non-Latino midterm swing is about 14 points. History suggests roughly half survives."},
+ {id:"rl",lab:"Latino swing that survives to 2028",min:0,max:100,step:5,unit:"%",f:100,help:"Latino swing was about 21 points. Many 2024 Trump gains came from low-propensity voters, who may flip back or stay home."},
+ {id:"share",lab:"Latino share of 2028 electorate",min:8,max:15,step:.5,unit:"%",f:1,help:"2024 was about 11%. Higher turnout among Latinos raises the weight of that swing."},
+ {id:"pen",lab:"Progressive penalty",min:0,max:8,step:.5,unit:" pts",f:1,help:"Extra margin lost by the most left-branded candidate (Ocasio-Cortez). Unverified, see table."},
+ {id:"pIran",lab:"Iran war ends durably before 2028",min:0,max:100,step:5,unit:"%",f:1,help:"Ending lowers the Democratic margin by 1.0 point (issue fades). Not ending adds 1.5 points."},
+ {id:"pRec",lab:"Recession by late 2028",min:0,max:80,step:5,unit:"%",f:1,help:"A recession under a Republican White House adds 2.5 points for Democrats."},
+ {id:"drift",lab:"Unforeseen drift (SD)",min:2,max:8,step:.5,unit:" pts",f:1,help:"Two-year-ahead forecasts miss by this much on average, from events nobody has listed."},
+ {id:"npv",lab:"Popular-vote compact in force for 2028",min:0,max:100,step:5,unit:"%",f:1,help:"If the compact reaches 270 pledged electoral votes and survives court challenge, the national popular vote winner wins. It stood at 222 votes after Virginia joined. My 20% default is a guess."},
+ {id:"pTar",lab:"Tariff price pain persists through 2028",min:0,max:100,step:5,unit:"%",f:1,help:"If tariffs stay high, Democrats gain 1.0 point as voters blame prices (74 to 82% in polls say tariffs raised costs). If they are rolled back or struck down, Democrats lose 0.5."},
+ {id:"pAI",lab:"Visible AI job-loss wave by 2028",min:0,max:100,step:5,unit:"%",f:1,help:"Adds 1.0 point for Democrats if white-collar layoffs are widely blamed on AI. Voters distrust both parties on AI, so the effect is kept modest. 58% already expect AI to cut more jobs than it creates."},
+ {id:"vpw",lab:"Running-mate weight vs top of ticket",min:0,max:100,step:5,unit:"%",f:100,help:"The share of a running mate's own candidate effect (including any progressive penalty) that carries onto the ticket. Research finds vice-presidential effects are small."},
+ {id:"home",lab:"Home-state bonus for a running mate",min:0,max:4,step:.5,unit:" pts",f:1,help:"Heersink and Peterson estimate 2.67 points in the running mate's home state, averaged over elections from 1884 to 2012. Only matters if the state is competitive."},
+ {id:"yl",lab:"Youth turnout lift for the top mobiliser",min:0,max:20,step:1,unit:" pts",f:1,help:"Extra turnout among voters 18 to 29 (about 15% of the electorate) when a candidate scores 1.0 on enthusiasm. Ocasio-Cortez scores 1.0; Ossoff .4; Buttigieg, Newsom, Harris .3; Shapiro .1."},
+ {id:"ym",lab:"Democratic margin among those extra youth voters",min:0,max:40,step:1,unit:" pts",f:1,help:"How lopsided the new voters are. Only the gap between this and the national margin helps."},
+ {id:"ll",lab:"Latino turnout lift for the top mobiliser",min:0,max:15,step:1,unit:" pts",f:1,help:"Extra Latino turnout at enthusiasm 1.0. Pew found Latino Democrats more engaged than in 2022. Counted in each state by its Latino share."}];
+var PRE=[["Base",DEF],["Wave holds",{rn:.65,rl:.65}],["Fades fast",{rn:.2,rl:.15,pRec:15}],["Latino snapback",{rl:0,share:12.5}],["Iran drags on",{pIran:15}],["Markets-ish",{rn:.12,rl:.1,pIran:60,pRec:20,drift:5}],["Compact off",{npv:0}],["Compact on",{npv:100}],["Stagflation",{pTar:90,pAI:60,pRec:45}],["Relief",{pTar:15,pAI:10,pRec:10,pIran:80}]];
+
+// ---- shared random draws (common random numbers keep matchups comparable) ----
+var N=3000; function mul(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+var rnd=mul(20281103); function nrm(){var u=0;while(!u)u=rnd();return Math.sqrt(-2*Math.log(u))*Math.cos(6.283185307*rnd())}
+var Z={}; ["zc","zn","zl","dr","ir","rc","cd","cr","np","ai","ta"].forEach(function(k){Z[k]=new Float32Array(N)});
+for(var i=0;i<N;i++){Z.zc[i]=nrm();Z.zn[i]=nrm();Z.zl[i]=nrm();Z.dr[i]=nrm();Z.ir[i]=rnd();Z.rc[i]=rnd();Z.cd[i]=nrm();Z.cr[i]=nrm();Z.np[i]=rnd();Z.ai[i]=rnd();Z.ta[i]=rnd()}
+var RG=new Float32Array(N*4), SN=new Float32Array(N*NS);
+for(i=0;i<RG.length;i++)RG[i]=nrm(); for(i=0;i<SN.length;i++)SN[i]=nrm();
+
+var M24=-1.5, DN=14.4, DL=21, LAT24=6;
+function clamp(x,a,b){return x<a?a:x>b?b:x}
+function q(a,p){var x=Math.min(a.length-1,Math.max(0,Math.round(p*(a.length-1))));return a[x]}
+function sim(d,r,shift,full){
+  var ev=new Float32Array(N), pm=new Float32Array(N), wins=0, scale=P.share/11, share=P.share/100;
+  var cE=d.e-(d.prog?P.pen:0)+r.e, latMod=d.l+r.l;
+  var vd=(VD&&VD.k!==d.k)?VD:null, vr=(VR&&VR.k!==r.k)?VR:null;
+  if(vd){cE+=P.vpw*(vd.e-(vd.prog?P.pen:0));latMod+=P.vpw*vd.l}
+  if(vr){cE+=P.vpw*vr.e;latMod+=P.vpw*vr.l}
+  var hd=vd?sidx(vd.h):-1, hr=vr?sidx(vr.h):-1, hb=P.home;
+  var mob=Math.min(1.5,(d.m||0)+(vd?P.vpw*(vd.m||0):0));
+  for(var i=0;i<N;i++){
+    var rn=clamp(P.rn+shift+.18*(.8*Z.zc[i]+.6*Z.zn[i]),0,1.2);
+    var rl=clamp(P.rl+shift+.22*(.8*Z.zc[i]+.6*Z.zl[i]),-.2,1.3);
+    var shock=P.drift*Z.dr[i]+(Z.ir[i]<P.pIran/100?-1:1.5)+(Z.rc[i]<P.pRec/100?2.5:0)+(Z.ta[i]<P.pTar/100?1:-.5)+(Z.ai[i]<P.pAI/100?1:0)+cE+1.2*Z.cd[i]+1.2*Z.cr[i];
+    var dN0=rn*DN, dL0=rl*DL+latMod;
+    var nm0=M24+(1-share)*(dN0+shock)+share*(dL0+shock);
+    shock+=mob*P.yl/50*.15*(P.ym-nm0);
+    var lbEff=mob*P.ll/50*(LAT24+dL0+shock-nm0);
+    var dN=dN0+shock, dL=dL0+shock, tot=0;
+    for(var s=0;s<NS;s++){
+      var S=ST[s], l=Math.min(.6,S[3]*scale);
+      var m=S[2]+(1-l)*dN+l*dL+1.5*RG[i*4+REG[S[4]]]+2*SN[i*NS+s]+(s===hd?hb:0)-(s===hr?hb:0)+l*lbEff;
+      if(m>0)tot+=S[1];
+    }
+    ev[i]=tot; pm[i]=M24+(1-share)*dN+share*dL+share*lbEff;
+    if(Z.np[i]<P.npv/100){if(pm[i]>0)wins+=1}else if(tot>269)wins+=1;else if(tot===269)wins+=.5;
+  }
+  var res={p:wins/N};
+  var e2=Float32Array.from(ev).sort(), p2=Float32Array.from(pm).sort();
+  res.ev=[q(e2,.1),q(e2,.5),q(e2,.9)]; res.m=[q(p2,.05),q(p2,.25),q(p2,.5),q(p2,.75),q(p2,.95)];
+  if(full)res.evs=ev;
+  return res;
+}
+
+// ---- rendering ----
+var $=function(s){return document.querySelector(s)};
+var NS_="http://www.w3.org/2000/svg", tip=$("#tip");
+function showTip(e,html){tip.innerHTML=html;tip.style.display="block";var x=Math.min(e.clientX+12,window.innerWidth-270);tip.style.left=Math.max(8,x)+"px";tip.style.top=(e.clientY+14)+"px"}
+function hideTip(){tip.style.display="none"}
+function pct(p){return Math.round(p*100)+"%"}
+function sgn(x){return (x>=0?"D+":"R+")+Math.abs(x).toFixed(1)}
+var cache={};
+
+function run(){
+  cache={};
+  DEM.forEach(function(d,a){REP.forEach(function(r,b){cache[a+"_"+b]=sim(d,r,0,a===selD&&b===selR)})});
+  drawMatrix(); drawFocus(); drawEV(); drawTable();
+}
+function mix(p){ // diverging fill from win probability
+  var x=Math.abs(p-.5)*2, c=p>=.5?"var(--d)":"var(--r)", k=Math.round(clamp(x,0,1)*88);
+  return {bg:"color-mix(in srgb,"+c+" "+k+"%,var(--neutral))",strong:k>42};
+}
+function drawMatrix(){
+  var h='<tr><th></th>'+REP.map(function(r){return '<th scope="col">vs '+r.k+'</th>'}).join("")+'</tr>';
+  DEM.forEach(function(d,a){
+    h+='<tr><th scope="row" class="rowh">'+d.k+'</th>';
+    REP.forEach(function(r,b){
+      var o=cache[a+"_"+b], m=mix(o.p);
+      h+='<td tabindex="0" data-a="'+a+'" data-b="'+b+'" class="'+(m.strong?"strong ":"")+(a===selD&&b===selR?"sel":"")+'" style="background:'+m.bg+'" aria-label="'+d.k+' versus '+r.k+', Democrat wins '+pct(o.p)+'">'+Math.round(o.p*100)+'</td>';
+    });h+='</tr>';
+  });
+  var t=$("#matrix"); t.innerHTML=h;
+  t.querySelectorAll("td").forEach(function(td){
+    var a=+td.dataset.a,b=+td.dataset.b,o=cache[a+"_"+b];
+    td.onclick=td.onkeydown=function(e){if(e.type==="keydown"&&e.key!=="Enter"&&e.key!==" ")return;selD=a;selR=b;run()};
+    td.onmousemove=function(e){showTip(e,"<b>"+DEM[a].k+" v "+REP[b].k+"</b><br>Democrat wins "+pct(o.p)+"<br>Median margin "+sgn(o.m[2])+"<br>Median EV "+Math.round(o.ev[1])+" (80%: "+Math.round(o.ev[0])+" to "+Math.round(o.ev[2])+")")};
+    td.onmouseleave=hideTip;
+  });
+}
+function el(n,a,txt){var e=document.createElementNS(NS_,n);for(var k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;return e}
+function drawFocus(){
+  $("#focusTitle").textContent="Every Democrat against "+REP[selR].k+vpNote();
+  var rs=$("#rsel"); rs.innerHTML="";
+  REP.forEach(function(r,b){var bt=document.createElement("button");bt.textContent="vs "+r.k;bt.setAttribute("aria-pressed",b===selR);bt.onclick=function(){selR=b;run()};rs.appendChild(bt)});
+  // low / high retention scenarios for this opponent
+  var lo=[],hi=[];DEM.forEach(function(d){lo.push(sim(d,REP[selR],-.2).p);hi.push(sim(d,REP[selR],.2).p)});
+  var W=Math.max(300,$("#forest").parentNode.clientWidth||340), rowH=34, lab=116, H=DEM.length*rowH+44, f=$("#forest"), w=$("#wp");
+  [f,w].forEach(function(s){s.innerHTML="";s.setAttribute("viewBox","0 0 "+W+" "+H);s.setAttribute("width","100%");s.setAttribute("height",H)});
+  var xl=-10,xh=20, X=function(v){return lab+(v-xl)/(xh-xl)*(W-lab-14)};
+  for(var v=-10;v<=20;v+=5){f.appendChild(el("line",{x1:X(v),x2:X(v),y1:6,y2:H-26,stroke:v===0?"var(--fg)":"var(--grid)","stroke-width":v===0?1.2:1}));f.appendChild(el("text",{x:X(v),y:H-10,"text-anchor":"middle",class:"mono"},(v>0?"D+":v<0?"R+":"")+Math.abs(v)||"0"))}
+  var Y=function(v){return lab+v/100*(W-lab-14)};
+  for(v=0;v<=100;v+=25){w.appendChild(el("line",{x1:Y(v),x2:Y(v),y1:6,y2:H-26,stroke:v===50?"var(--fg)":"var(--grid)","stroke-width":v===50?1.2:1}));w.appendChild(el("text",{x:Y(v),y:H-10,"text-anchor":"middle",class:"mono"},v+"%"))}
+  DEM.forEach(function(d,a){
+    var y=16+a*rowH, o=cache[a+"_"+selR], sel=a===selD;
+    [f,w].forEach(function(s){var t=el("text",{x:lab-8,y:y+4,"text-anchor":"end",class:sel?"lab":"",style:sel?"font-weight:600":""},d.k);s.appendChild(t)});
+    f.appendChild(el("line",{x1:X(o.m[0]),x2:X(o.m[4]),y1:y,y2:y,stroke:"var(--d)","stroke-width":2,opacity:.55}));
+    f.appendChild(el("line",{x1:X(o.m[1]),x2:X(o.m[3]),y1:y,y2:y,stroke:"var(--d)","stroke-width":8,"stroke-linecap":"round"}));
+    f.appendChild(el("circle",{cx:X(o.m[2]),cy:y,r:5,fill:"var(--panel)",stroke:"var(--d)","stroke-width":2}));
+    var h=el("rect",{x:0,y:y-16,width:W,height:32,fill:"transparent",style:"cursor:pointer"});
+    h.onclick=function(){selD=a;run()};
+    h.onmousemove=function(e){showTip(e,"<b>"+d.k+" v "+REP[selR].k+"</b><br>Median "+sgn(o.m[2])+"<br>50%: "+sgn(o.m[1])+" to "+sgn(o.m[3])+"<br>90%: "+sgn(o.m[0])+" to "+sgn(o.m[4])+"<br>Win "+pct(o.p)+" (range "+pct(lo[a])+" to "+pct(hi[a])+")")};
+    h.onmouseleave=hideTip; f.appendChild(h);
+    var h2=h.cloneNode(true);h2.onclick=h.onclick;h2.onmousemove=h.onmousemove;h2.onmouseleave=hideTip;w.appendChild(h2);
+    w.appendChild(el("line",{x1:Y(lo[a]*100),x2:Y(hi[a]*100),y1:y,y2:y,stroke:"var(--d)","stroke-width":8,"stroke-linecap":"round",opacity:.35}));
+    w.appendChild(el("circle",{cx:Y(o.p*100),cy:y,r:5.5,fill:o.p>=.5?"var(--d)":"var(--r)",stroke:"var(--panel)","stroke-width":2}));
+    var tx=Y(Math.max(hi[a],o.p)*100)+10, anchor="start"; if(tx>W-34){tx=Y(Math.min(lo[a],o.p)*100)-10;anchor="end"}
+    w.appendChild(el("text",{x:tx,y:y+4,"text-anchor":anchor,class:"lab mono"},Math.round(o.p*100)+"%"));
+  });
+}
+function drawEV(){
+  var d=DEM[selD], r=REP[selR], o=cache[selD+"_"+selR], s=$("#ev");
+  $("#evTitle").textContent="Electoral votes: "+d.k+" v "+r.k;
+  $("#evSub").textContent="Democrat wins "+pct(o.p)+" of simulations. Median "+Math.round(o.ev[1])+" electoral votes; the middle 80% runs from "+Math.round(o.ev[0])+" to "+Math.round(o.ev[2])+". 270 needed.";
+  var W=Math.max(300,s.parentNode.clientWidth||600), H=210, pl=30, pr=10, pt=14, pb=30, bw=20, nb=Math.ceil(539/bw), bins=new Array(nb).fill(0);
+  for(var i=0;i<N;i++)bins[Math.floor(o.evs[i]/bw)]++;
+  var mx=Math.max.apply(null,bins); s.innerHTML=""; s.setAttribute("viewBox","0 0 "+W+" "+H); s.setAttribute("width","100%"); s.setAttribute("height",H);
+  var X=function(v){return pl+v/538*(W-pl-pr)}, bwp=(W-pl-pr)/538*bw-2;
+  s.appendChild(el("line",{x1:pl,x2:W-pr,y1:H-pb,y2:H-pb,stroke:"var(--line)"}));
+  bins.forEach(function(c,k){var h=c/mx*(H-pt-pb);if(!c)return;var lo=k*bw;
+    var b=el("rect",{x:X(lo)+1,y:H-pb-h,width:Math.max(1,bwp),height:h,rx:2,fill:lo+bw/2>=270?"var(--d)":"var(--r)",opacity:.85});
+    b.onmousemove=function(e){showTip(e,lo+" to "+(lo+bw-1)+" EV<br>"+(c/N*100).toFixed(1)+"% of simulations")};b.onmouseleave=hideTip;s.appendChild(b)});
+  s.appendChild(el("line",{x1:X(270),x2:X(270),y1:pt-4,y2:H-pb,stroke:"var(--fg)","stroke-dasharray":"3 3"}));
+  s.appendChild(el("text",{x:X(270)+5,y:pt+6,class:"lab"},"270 to win"));
+  [0,100,200,300,400,500].forEach(function(v){s.appendChild(el("text",{x:X(v),y:H-12,"text-anchor":"middle",class:"mono"},v))});
+  s.appendChild(el("text",{x:pl,y:H-1,"text-anchor":"start"},"Democratic electoral votes"));
+}
+function drawTable(){
+  var h="<tr><th>Democrat</th><th>Republican</th><th class='n'>Dem win</th><th class='n'>Median margin</th><th class='n'>90% range</th><th class='n'>Median EV</th></tr>";
+  DEM.forEach(function(d,a){REP.forEach(function(r,b){var o=cache[a+"_"+b];h+="<tr><td>"+d.k+"</td><td>"+r.k+"</td><td class='n'>"+pct(o.p)+"</td><td class='n'>"+sgn(o.m[2])+"</td><td class='n'>"+sgn(o.m[0])+" to "+sgn(o.m[4])+"</td><td class='n'>"+Math.round(o.ev[1])+"</td></tr>"})});
+  $("#tbl").innerHTML=h;
+}
+$("#tblBtn").onclick=function(){var w=$("#tblWrap"),on=w.hidden;w.hidden=!on;this.setAttribute("aria-pressed",on);this.textContent=on?"Hide table":"Show table"};
+
+// ---- controls ----
+var host=$("#controls"), outs={}, ins={};
+CTL.forEach(function(c){
+  var d=document.createElement("div");d.className="ctl";
+  d.innerHTML='<label for="c_'+c.id+'"><span>'+c.lab+'</span><output id="o_'+c.id+'"></output></label><input type="range" id="c_'+c.id+'" min="'+c.min+'" max="'+c.max+'" step="'+c.step+'"><small>'+c.help+'</small>';
+  host.appendChild(d);outs[c.id]=d.querySelector("output");ins[c.id]=d.querySelector("input");
+  ins[c.id].oninput=function(){P[c.id]=+this.value/(c.f===100?100:1);sync(false);sched()};
+});
+function sync(setInputs){CTL.forEach(function(c){var v=P[c.id]*c.f;if(setInputs)ins[c.id].value=v;outs[c.id].textContent=(Math.round(v*10)/10)+c.unit})}
+var pb=$("#presets"),t=null;
+PRE.forEach(function(p,i){var b=document.createElement("button");b.textContent=p[0];b.onclick=function(){P=Object.assign({},DEF,p[1]);sync(true);run()};pb.appendChild(b)});
+function sched(){clearTimeout(t);t=setTimeout(run,120)}
+(function(){var a=$("#vpd"),b=$("#vpr");VPD.forEach(function(v,i){var o=document.createElement("option");o.value=i;o.textContent=v?v.k:"None (generic)";a.appendChild(o)});VPR.forEach(function(v,i){var o=document.createElement("option");o.value=i;o.textContent=v?v.k:"None (generic)";b.appendChild(o)});a.onchange=function(){VD=VPD[+a.value];run()};b.onchange=function(){VR=VPR[+b.value];run()}})();
+sync(true);run();
+var rt=null;window.addEventListener("resize",function(){clearTimeout(rt);rt=setTimeout(function(){drawFocus();drawEV()},150)});
+})();
+</script>
+
+</html>
