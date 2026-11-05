@@ -28,8 +28,29 @@
 | D13 | Tooling bug, found and fixed: `ocr_rot.py` reused stale page images from earlier runs. It affected only discarded outputs (1972 pages 50, 51, 55 and 56 first runs, which showed a seat-count table). No retained figure depended on it. | - |
 | D14 | `1976-2024-president.csv` validated: 4,822 rows, 51 jurisdictions, 13 elections, no duplicate keys, national margins match published results (2020 +4.45, 2024 -1.47). One state-year mismatch of 0.8% (2024 DC: candidate votes 328,404 vs total 325,869). | Presidential margins for all cycles to 2024 now from one file. |
 
+## Third upload: House results 1976-2024 (house-results.csv, schema version 2025-09-10)
+Preserved read-only in `data/raw/user-upload-2026-11-05-b/` (sha256 `38db9d28...0214`). Provenance: supplied by the user from `api.electiondata.dev`, described as a distribution of MIT Election Lab data. I could not verify that claim independently, so the file is validated on its content only.
+| ID | Decision / finding | Effect |
+|----|--------------------|--------|
+| D15 | Rows keyed by `race_row`, not by candidate/party. The file's 85 "duplicate" keys are all distinct write-in rows. (My old pipeline's de-duplication on the 2017-19 file could merge write-in rows. Effect on margins is negligible.) | - |
+| D16 | Fusion tickets: use `candidate_total_votes` (never less than the sum of party lines). 35 candidates (2020-2024, mostly NY) have lines that do not sum to the total, so the total is used. Credited to the candidate's major party. | - |
+| D17 | **California 2018 is correct in this file**: CA-1 131,548 + 160,046 = 291,594 = certified total. The doubling in the 2017-19 file is fixed. National 2018 margin D+8.57 (was D+10.94). | 2018 cycle now usable. |
+| D18 | Candidate-vote sums agree with reported `totalvotes` within 1% in every year. Uncontested seats have blank votes (not the old placeholder of 1). Special elections (1996: 60 rows, 2006: 30 rows) excluded as before. | - |
+| D19 | Matched-panel redraw exclusions (analyst decisions from memory, unverified): 1994 GA,TX,LA,FL,NC,VA; 2006 TX; 2014 VA,FL,NC; 2018 PA,NC. 2010 cycle: 2yr only. 2022 cycle: no panel (maps changed in most states). | Panels of 263 to 358 seats. |
+
+### Results that changed with the new file (national House margin, as recorded)
+| Year | Old file (my pipeline) | New file | Official / secondary |
+|---|---|---|---|
+| 1992 | +5.88 | +5.12 | official +5.20 |
+| 1994 | -6.11 | -6.94 | secondary -6.8 |
+| 1976 | +14.56 | +14.15 | secondary +13.6 |
+| 1990 | +8.86 | +7.80 | n/a |
+| 2002 | -4.03 | -4.82 | n/a |
+| 2018 | +10.94 (CA doubled) | +8.57 | reported +8.6 |
+Persistence beta by cycle (as recorded), provisional to final: 1974 0.71 to 0.78 (beta_H), 1994 -0.24 to -0.23, 2006 0.92 to 0.93, 2010 0.20 to 0.20, 2014 0.26 to 0.25, 2018 0.25 to 0.23, 2022 1.03 to 0.99. Pooled mean 0.45 (unchanged), SD 0.46 (unchanged).
+
 ## Unresolved discrepancies between sources
-- 1992 House D votes: MIT 49,168,549 (fusion) or 48,921,919 (party-line only) vs official 48,550,096. Margin gap +0.68 pt after the D10 fix. Cause not identified; needs a state-by-state reconciliation.
+- 1992 House margin: RESOLVED by the new file (+5.12 vs official +5.20). The old 2017 file differed by +0.68 after the D10 fix.
 - 1976, 1994, 1996, 2006: MIT-derived margins differ from Wikipedia-derived Clerk figures by 0.1 to 1.0 pt. Cannot be resolved without the Clerk PDFs for those years.
 - 1972 presidential: party-line (-22.98) vs candidate-level (about -23.2, recalled, unverified).
 
@@ -37,5 +58,5 @@
 - Uncontested seats: recorded with unrepresentative turnout in most states and as placeholders in FL, AR, LA, OK.
 - Secondary-source House margins (Wikipedia-derived) differ from MEDSL-derived margins by up to about 1 point in some years (1976: 13.6 vs 14.6; 1994: 6.8 vs 6.1; 1996: 0.07 vs 0.55).
 
-## Pending data (uploads requested)
-Harvard Dataverse V15 `1976-2024-house.tab` (user's download returned HTTP 400). Clerk PDFs for 1976, 1978, 1980, 1994, 1996 first, then 2004 to 2018, to reconcile MIT-derived margins with official totals.
+## Still pending
+Final district-level 2026 returns (counts incomplete). Optional: Clerk PDFs for 1976, 1978, 1980, 1994 to independently confirm the new file's early-year margins.
