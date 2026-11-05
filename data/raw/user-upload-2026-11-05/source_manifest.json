@@ -1,0 +1,44 @@
+{
+  "created_utc": "2026-11-05T20:49:37.918592+00:00",
+  "description": "Raw source files for Road to 2028; downloaded without alterations. Checksums do not imply analytical validation.",
+  "expected_files": 5,
+  "successfully_downloaded_or_verified": 4,
+  "mit_house_dataset_doi": "doi:10.7910/DVN/IG0UN2",
+  "files": [
+    {
+      "name": "1972election.pdf",
+      "url": "https://clerk.house.gov/member_info/electionInfo/1972election.pdf",
+      "status": "downloaded-and-format-checked",
+      "bytes": 2251020,
+      "sha256": "154ec5627a2ad3bd7d914af246fc3306f974f4fdf9e01405cb7d6c40c9649be6"
+    },
+    {
+      "name": "1974election.pdf",
+      "url": "https://clerk.house.gov/member_info/electionInfo/1974election.pdf",
+      "status": "downloaded-and-format-checked",
+      "bytes": 2031902,
+      "sha256": "5903a8a73acd03f1679bdf92db418488ecf3bb99109b9d143aa3010e59d5d15d"
+    },
+    {
+      "name": "1992election.pdf",
+      "url": "https://clerk.house.gov/member_info/electionInfo/1992election.pdf",
+      "status": "downloaded-and-format-checked",
+      "bytes": 3479297,
+      "sha256": "0a4e0ec4eb3ca9d8a900fbcea86eddd5b3b403df5df02f17cae99306ce430648"
+    },
+    {
+      "name": "1976-2024-president.csv",
+      "url": "https://dataverse.harvard.edu/api/access/datafile/13887042",
+      "status": "downloaded-and-format-checked",
+      "bytes": 514108,
+      "sha256": "9936410a6dd4ecc8be7fe202c6dff5b5f8fee59d88f35ab542ed12879941dcb7"
+    },
+    {
+      "name": "1976-2024-house.tab",
+      "url": "https://dataverse.harvard.edu/api/access/datafile/13592823",
+      "status": "FAILED",
+      "error": "HTTPError: HTTP Error 400: Bad Request"
+    }
+  ],
+  "note": "If House Dataverse requires a guestbook, download 1976-2024-house.tab using a normal browser and copy it into road_to_2028_evidence, then rerun. No automated guestbook submission is attempted."
+}

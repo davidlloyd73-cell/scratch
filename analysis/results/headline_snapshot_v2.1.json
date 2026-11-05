@@ -1,0 +1,179 @@
+{
+ "page": "road-to-2028-v2.1.html",
+ "generated": "2026-11-05T21:54:35.689Z",
+ "patterns": {
+  "pool": {
+   "Generic Democrat v Generic Republican": {
+    "win": 68.2,
+    "median_margin": 3.8,
+    "margin90": [
+     -7.5,
+     17.8
+    ]
+   },
+   "Buttigieg v Vance": {
+    "win": 73.6,
+    "median_margin": 5.1,
+    "margin90": [
+     -6.6,
+     19.5
+    ]
+   },
+   "Ocasio-Cortez v Vance": {
+    "win": 68.3,
+    "median_margin": 4,
+    "margin90": [
+     -7.8,
+     18.3
+    ]
+   },
+   "Ossoff v Rubio": {
+    "win": 67,
+    "median_margin": 3.7,
+    "margin90": [
+     -8,
+     18.1
+    ]
+   }
+  },
+  "poolW": {
+   "Generic Democrat v Generic Republican": {
+    "win": 73.6,
+    "median_margin": 5.6,
+    "margin90": [
+     -6.7,
+     17.7
+    ]
+   },
+   "Buttigieg v Vance": {
+    "win": 78,
+    "median_margin": 6.8,
+    "margin90": [
+     -5.7,
+     19.3
+    ]
+   },
+   "Ocasio-Cortez v Vance": {
+    "win": 73.7,
+    "median_margin": 5.7,
+    "margin90": [
+     -6.8,
+     18.2
+    ]
+   },
+   "Ossoff v Rubio": {
+    "win": 72.5,
+    "median_margin": 5.4,
+    "margin90": [
+     -7.1,
+     17.9
+    ]
+   }
+  },
+  "open": {
+   "Generic Democrat v Generic Republican": {
+    "win": 89.9,
+    "median_margin": 11.3,
+    "margin90": [
+     -1.4,
+     19.4
+    ]
+   },
+   "Buttigieg v Vance": {
+    "win": 92.3,
+    "median_margin": 12.3,
+    "margin90": [
+     -0.7,
+     21
+    ]
+   },
+   "Ocasio-Cortez v Vance": {
+    "win": 89.8,
+    "median_margin": 11.2,
+    "margin90": [
+     -1.8,
+     19.9
+    ]
+   },
+   "Ossoff v Rubio": {
+    "win": 88.9,
+    "median_margin": 10.9,
+    "margin90": [
+     -2.1,
+     19.6
+    ]
+   }
+  },
+  "inc": {
+   "Generic Democrat v Generic Republican": {
+    "win": 47.3,
+    "median_margin": -0.1,
+    "margin90": [
+     -9,
+     7.4
+    ]
+   },
+   "Buttigieg v Vance": {
+    "win": 55.3,
+    "median_margin": 1.1,
+    "margin90": [
+     -8.3,
+     9
+    ]
+   },
+   "Ocasio-Cortez v Vance": {
+    "win": 47.1,
+    "median_margin": 0,
+    "margin90": [
+     -9.4,
+     7.9
+    ]
+   },
+   "Ossoff v Rubio": {
+    "win": 45.3,
+    "median_margin": -0.3,
+    "margin90": [
+     -9.7,
+     7.6
+    ]
+   }
+  },
+  "none": {
+   "Generic Democrat v Generic Republican": {
+    "win": 22.9,
+    "median_margin": -1.5,
+    "margin90": [
+     -4.8,
+     1.9
+    ]
+   },
+   "Buttigieg v Vance": {
+    "win": 41,
+    "median_margin": -0.3,
+    "margin90": [
+     -4.5,
+     3.9
+    ]
+   },
+   "Ocasio-Cortez v Vance": {
+    "win": 27.3,
+    "median_margin": -1.4,
+    "margin90": [
+     -5.7,
+     2.8
+    ]
+   },
+   "Ossoff v Rubio": {
+    "win": 23.7,
+    "median_margin": -1.7,
+    "margin90": [
+     -5.9,
+     2.5
+    ]
+   }
+  }
+ },
+ "model": "RTW2028-v2.1.0",
+ "seed": 20281103,
+ "simulations": 4000
+}

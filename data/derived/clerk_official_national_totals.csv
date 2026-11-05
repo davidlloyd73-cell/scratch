@@ -1,0 +1,5 @@
+source_pdf,source_sha256,pdf_page,printed_page,office,year,democrat,republican,total,margin_pp,how_verified
+1972election.pdf,154ec5627a2ad3bd7d914af246fc3306f974f4fdf9e01405cb7d6c40c9649be6,56,55,US House (Total by districts),1972,36780100,33064172,71188405,5.22,"OCR located row; digits read visually from cropped image (evidence_crops/1972_band_p56.png)"
+1972election.pdf,154ec5627a2ad3bd7d914af246fc3306f974f4fdf9e01405cb7d6c40c9649be6,53,52,US President (party-line electors),1972,28901598,46740323,77625152,-22.98,"visual read (evidence_crops/1972_pres_band.png). Party-line column; fusion lines (e.g. NY Conservative) not credited, so candidate-level margin is about 0.2 pt more negative (unverified)"
+1974election.pdf,5903a8a73acd03f1679bdf92db418488ecf3bb99109b9d143aa3010e59d5d15d,46,45,US House,1974,29872842,21165583,52313457,16.64,"visual read (evidence_crops/1974_total_crop.png)"
+1992election.pdf,0a4e0ec4eb3ca9d8a900fbcea86eddd5b3b403df5df02f17cae99306ce430648,87,86,US House,1992,48550096,43498015,97198316,5.20,"visual read (evidence_crops/1992_total_crop.png)"
