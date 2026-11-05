@@ -10,3 +10,21 @@ Status: scenario analysis, not a validated forecast.
 Unchanged: interface, defaults for regional size (2.5) and state noise (1.75), hypothetical effects off by default, candidate and running-mate treatment, 2026 inputs.
 
 Evidence: `analysis/regional_structure.py`, `analysis/backtest.py`, `analysis/results/`.
+
+## Addendum (5 Nov 2026): what the regional correlations do and do not mean
+
+The negative correlations in change 4 (Rust Belt-South -0.68, West-Northeast -0.59, South-West -0.31) describe how regional swings **deviate from the national swing**. They are not correlations between state election outcomes.
+
+State margins are also driven by the national environment, which in the model is dominated by the persistence of the 2026 swing (SD about 7.5 pts). Two states therefore move together in their *margins* even though their *regional deviations* are negatively correlated. Measured on the default settings (4,000 simulations, seed 20281103, generic v generic):
+
+| Pair | Correlation of state margins | Correlation after removing the national swing |
+|---|---|---|
+| Pennsylvania - Georgia | +0.84 | -0.42 |
+| Georgia - Arizona | +0.86 | -0.25 |
+| Pennsylvania - Michigan | +0.96 | +0.62 |
+
+With persistence switched off (the 2024 map plus noise), Pennsylvania-Georgia margins correlate +0.10. An independent check of the published source reproduced the +0.84 figure.
+
+Practical consequence: in this model a Democratic win in one battleground state is strong evidence of wins in the others, because one national factor drives most of the variance. That is a modelling choice resting on the six-cycle persistence estimate, which is itself weakly identified.
+
+Version 2.1 is the baseline. The published page is unchanged by this addendum.
