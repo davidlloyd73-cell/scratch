@@ -225,7 +225,7 @@ def collect_aidb(site):
     age = (t - dt.date.fromisoformat(newest)).days
     fresh = ({"state": "today", "label": f"Edition of {short(newest)}"} if fresh_ok else
              {"state": "old", "label": f"Latest edition {short(newest)}",
-              "note": f"The newest edition in the website repository is {age} days old. The iMac task that builds it is not running."})
+              "note": f"The newest edition in the website repository is {age} days old. The cloud task that builds it has not published a newer one."})
     src = (re.search(r"(?m)^source:\s*(\S+)", text) or [None, ""])[1]
     return {"fresh": fresh, "title": title, "idea": idea[:700], "other": " ".join(other_lines)[:600], "gp": gp[:3],
             "claims": [{"name": "Open", "n": claims["open"], "c": "var(--s1)"}, {"name": "Resolved, held", "n": claims["held"], "c": "var(--s3)"},
@@ -534,9 +534,9 @@ def cmd_build(work):
             {"name": "Morning Rush", "where": "cloud", "due": "06:00 daily", "status": "yes" if rush and rush["date"] == T else "no",
              "lastOutput": rush["date"] if rush else "", "lastLabel": f"Issue {rush['issue']}" if rush else "", "run": "",
              "note": (f"Issue {rush['issue']} is on the website." if rush and rush["date"] == T else f"Newest issue on the website is dated {short(rush['date'])}." if rush else "Website repository unreachable.")},
-            {"name": "AI daily brief site", "where": "iMac", "due": "06:20 daily", "status": "yes" if aidb["fresh"]["state"] == "today" else "no",
+            {"name": "AI daily brief site", "where": "cloud", "due": "06:20 daily", "status": "yes" if aidb["fresh"]["state"] == "today" else "no",
              "lastOutput": ad or "", "lastLabel": f"Edition of {short(ad)}" if ad else "", "run": "",
-             "note": "Up to date." if aidb["fresh"]["state"] == "today" else "Runs only when the iMac is awake with Claude open."},
+             "note": "Up to date." if aidb["fresh"]["state"] == "today" else "No edition for the last podcast day yet; the source publishes some hours after it airs."},
             {"name": "Daily OSA brief", "where": "Mac mini", "due": "07:10 daily", "status": "unverified", "lastOutput": "", "lastLabel": "", "run": "",
              "note": "Private by design; its output is never read here."}]
     hist["health"][T] = {r["name"]: r["status"] for r in rows}
