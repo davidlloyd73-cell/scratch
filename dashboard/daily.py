@@ -481,12 +481,11 @@ def cmd_build(work):
     tc = {}
     for x in items:
         tc[topic_of(x["title"])] = tc.get(topic_of(x["title"]), 0) + 1
-    bmj_last = hist["news_meta"].get("bmj_last")
+    shown_bmj = [x["date"] for x in items if x["src"] == "BMJ"]
     pulse_ok = bool(p_pick)
-    bmj_ok = bool(bmj_last and bmj_last >= (t - dt.timedelta(days=8)).isoformat())
-    label = ("Pulse " + short(max(x["date"] for x in p_pick)) if pulse_ok else "Pulse not collected") + (f", BMJ {short(bmj_last)}" if bmj_last else ", no BMJ newsletter yet")
-    news = {"fresh": {"state": "today" if pulse_ok and bmj_ok else "old" if items else "none", "label": label,
-                      "note": "Pulse is read from its own news feed; BMJ and NEJM come from their email newsletters. GPonline refuses automated readers and is no longer followed."},
+    label = ("Pulse " + short(max(x["date"] for x in p_pick)) if pulse_ok else "Pulse not collected") + (f", BMJ {short(max(shown_bmj))}" if shown_bmj else "")
+    news = {"fresh": {"state": "today" if pulse_ok else "old" if items else "none", "label": label,
+                      "note": "Pulse is read from its own news feed. BMJ and NEJM items appear when the task can read their email newsletters. GPonline refuses automated readers and is no longer followed."},
             "perDay": [dict({"d": d}, **per[d]) for d in days10],
             "topics": [{"name": n, "n": tc.get(n, 0)} for n, _ in TOPICS] + [{"name": "Other", "n": tc.get("Other", 0)}], "items": items}
 
