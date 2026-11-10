@@ -55,3 +55,10 @@ David (73, UK GP, Harrow) wants every daily task to actually run and to land in 
 
 ## Opening prompt to paste on the Mac mini
 "Read ops/HANDOFF.md in this repo and carry on from 'Still to do'. Start by checking the cloud Morning Rush test run result, then work through the list. Report back to me in plain words after each step, and ask only when a decision is genuinely mine."
+
+## Update 9 Nov 2026: everything checkable now runs in the cloud
+- Dashboard: task "Daily dashboard builder (direct)" trig_01RAo3ZrjmTcNx22nw6dBkBL, 08:35, environment `lloyd-dashboard`. It runs `dashboard/daily.py` (collect, then build) and publishes. The old builder trig_01DdDgdNm3Pv95BxqbS9BFok is disabled.
+- Morning Rush (cloud) trig_011YZ8c8UjBKyNVdcroegbgz: prompt rewritten so no shell command needs approval (the 4 to 9 Nov editions were lost to an unattended approval prompt).
+- AI daily brief: task "AI daily brief site (cloud)" trig_01Tx2vAwig7UghqZ4nYXxcHp, 06:20, wakes the standing session session_013sJK7nJxm29fpxYP7Evg4K, which has ai-daily-brief attached with write access. A task that starts a fresh session cannot push to that repo (no add_repo tool, 403), so do not convert it to fresh-session without adding the repo as a source in the routines page. The iMac task trig_015N8z89UWAd3KLotqeNFzuX stays disabled; do not re-enable it or both will publish.
+- `scripts/tts.py` in ai-daily-brief passes the session proxy to edge-tts, which is what lets audio work in the cloud.
+- Scheduled cloud runs must never use heredocs or multi-line shell commands: they wait for an approval nobody gives.

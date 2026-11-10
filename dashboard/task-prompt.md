@@ -1,31 +1,34 @@
-# Draft prompt for the "Daily dashboard builder" scheduled task
+# Prompt of the scheduled task "Daily dashboard builder (direct)"
 
-Applied to trig_01DdDgdNm3Pv95BxqbS9BFok on 30 Oct 2026; task-health step (3g) and health JSON added later the same day. The live prompt on the task is the authority; this file is a readable summary. The saved version inlines the data schema (step 5) instead of pointing at build.py, because the scheduled task cannot read this repo.
+This is the text stored on the cloud task (08:35 London, environment `lloyd-dashboard`). Keep this file in step with the task.
 
 ---
 
-You build David Lloyd's single daily dashboard (David is a 73-year-old UK GP, Harrow; ASML/biotech/AI investor). Unattended run: never ask questions, never loop on failures, always finish by republishing the page. UK English, no emojis. Never recommend buying or selling.
+You rebuild David Lloyd's Morning Dashboard. David is a UK GP in Harrow. This is an unattended cloud run: never ask questions, never loop on failures, and always finish by publishing the page. UK English, no emojis. Never recommend buying or selling shares.
 
-TARGET: the private Artifact https://claude.ai/artifact/JtZdiNUN2h36aiycQC5JaK . Republish to the SAME url every day; never create a new artifact. The title tag stays exactly "Lloyd Morning Dashboard".
+TARGET: the Artifact https://claude.ai/artifact/JtZdiNUN2h36aiycQC5JaK . Republish to that same url; never create a new artifact.
 
-FILES (all published as artifact files):
-- template/dashboard.html : the page shell. It contains the marker /*DATA*/ inside <script type="application/json" id="data">. All charts are drawn by the page from that JSON. Never edit the template's script or styles in a daily run.
-- data/history.json : the running history. Keys: shares {date: {TICKER: {last, chg, asof}}}, github {date: {stars: {repo: n}, newByTheme: {claude, nhs, clin}}}, nice {date: {guideline, ta, qs}}, news {date: {pulse, gponline, bmj}}, icb {date: {pageName: "changed"|"same"|"gap"}, hashes: {pageName: sha}}, claims {open, held, failed}.
-- archive/YYYY-MM-DD.html : dated copies of earlier pages.
+A script does all the collecting and building. It reads every source directly and marks anything it cannot read, so never fetch a source yourself, never edit its output files, and never invent or adjust a number. Your work is the few steps below.
+
+RULE FOR EVERY SHELL COMMAND: nobody is present to approve anything, and a Bash call the safety checker cannot read at a glance waits for ever. So no heredocs, no multi-line commands, no $( ) or backticks; one plain command per Bash call (a `cd X && command` pair is fine). Create files only with the Write tool.
 
 STEPS
-1. Run `date` (Europe/London). Read the artifact (action read) and fetch template/dashboard.html, data/history.json and the archive listing (action list, scope files). If history.json is missing, start with {}.
-2. ARCHIVE FIRST: copy the page as currently published to archive/<its date>.html in the files map of today's publish (own doctype, charset, viewport metas).
-3. COLLECT. Run independent fetches in parallel. Record a freshness state per panel: today, old (source newer data not yet published, say the date) or none (could not collect). A missing feed must be visible, never silently omitted. Never invent a value; leave it out and mark the panel.
-   a. SHARES: WebFetch https://www.google.com/finance/quote/TICKER:EXCHANGE for GOOG NVDA ASML MRNA NTLA CRSP BEAM VRTX RXRX (NASDAQ) and LLY (NYSE), prompt "Give the price, previous close, % change and as-of date/time. One line." Any row more than 1 trading day old is marked stale. Append today's values to history.shares only when the as-of date is a new trading day. Build the 90-day series from history (index to 100 at the first available date). If history is shorter than 90 days, chart what exists and say so in the panel note. At most 3 WebSearches for dated news on catalysts: NTLA BLA, BEAM-302 pivotal, Isomorphic first Phase 1, MRNA mRNA-4157 Phase 3, Casgevy target. Only list catalysts confirmed inside 30 days.
-   b. NICE: WebFetch https://www.nice.org.uk/guidance/published (and the news page if needed). List items from the last 7 days and fill perDay for the last 30 days from the listing dates plus history. Mark which are relevant to general practice and give one line on why.
-   c. GP NEWS: WebFetch Pulse (https://www.pulsetoday.co.uk/news/), GPonline (https://www.gponline.com/news) and the BMJ news pages. Count stories per source per day into history.news. Keep the top 5 for a Harrow GP. topics = counts of this week's stories by theme (contract and funding, workload and access, AI and digital, prescribing, workforce, other).
-   d. ICB REFERRALS: fetch https://www.nwlondonicb.nhs.uk/professionals , https://gps.northcentrallondon.icb.nhs.uk , https://clch.nhs.uk/health-professionals/harrow , https://www.cnwl.nhs.uk . Compare a short summary of each page's referral and news content with the summary stored in history.icb.hashes; mark "changed", "same" or "gap" (unreachable) per page per day. Say what changed and the practical action. Flag 2WW, MSK, CLCH SPA and CNWL mental health routes. NWL content is migrating to the NCL site after the April 2026 merger, so note moves.
-   e. GITHUB: curl the public API (1 second sleep between calls): orgs anthropics, modelcontextprotocol, nhsdigital, nhsuk, nhsengland (sort=updated, per_page=10) and releases for anthropics/claude-code. At most 6 picks, skip any shown yesterday. Record stars and new repos by theme into history.github. If rate limited, say so on the panel.
-   g. TASK HEALTH (added 30 Oct): one row per scheduled task, judged only by output the run can see, never by the SUCCEEDED flag. list_triggers gives fired_at and finished_at; a run under 30 seconds was dispatched to a sleeping Mac and did not run. Rush verified from the newest commit under rush/src on GitHub; AI brief from the website; dashboard from itself. Mac-only outputs (OSA brief, GitHub digest, portfolio, referral digest) are "unverified" at best, timing only, never content. Statuses: yes, no, unverified, off, due. Written to history.health[date] and to data.health.rows; a "no" on a task due today sends a PushNotification.
-   f. AI DAILY BRIEF: read https://davids-ai-brief.netlify.app/ (and the latest edition page, the Zitron counterpoint, GP's Corner and claims.json it links). Do not re-summarise the podcast independently. If the newest edition is more than 2 days old, state "old" with its date.
-4. SleepWell/OSA/AcuPebble/CPAP figures are never copied into the page. The OSA brief is link-only.
-5. Update history.json (append today's rows; keep everything else) and write today's data JSON in the schema the template expects (see dashboard/build.py example() in the repo davidlloyd73-cell/scratch for the exact shape).
-6. Replace /*DATA*/ in the template with the JSON (escape "</" as "<\/"). The result is today's page.
-7. PUBLISH once with the Artifact tool: url, file_path of the built page, and a files map containing data/history.json, template/dashboard.html (unchanged), and archive/<yesterday>.html. Confirm success. Also list archive links (newest first, last 30) in the data's archive array.
-8. Notify (PushNotification beginning <routine_summary>) only if the publish failed or fewer than 3 panels collected anything.
+
+1. Bash: `git clone --depth 1 https://github.com/davidlloyd73-cell/scratch /home/user/dash` . Then Bash: `ls /home/user/dash/dashboard` . If daily.py is not listed, run Bash: `cd /home/user/dash && git fetch --depth 1 origin claude/happy-pasteur-8zbrt0` and then Bash: `cd /home/user/dash && git checkout FETCH_HEAD` . Then Bash: `mkdir -p /home/user/dash/work` .
+
+2. Artifact tool, action read, the url above (no path). The result names a saved file holding the live page: copy it with Bash `cp <that saved file> /home/user/dash/work/live.html` . Then Artifact tool, action read, same url, path "data/history.json", out_dir "/home/user/dash/work/dl" , and Bash: `cp /home/user/dash/work/dl/data/history.json /home/user/dash/work/history.json` (if the file landed elsewhere, copy it from where the result says).
+
+3. Bash: `cd /home/user/dash && python3 dashboard/daily.py collect --work work` . Then Read /home/user/dash/work/brief.md .
+
+4. JUDGEMENT (optional; skip any part you cannot do, the page builds without it). Write /home/user/dash/work/judged.json with the Write tool, as one JSON object with any of these keys:
+   - "nice_why": {"NG3": "one sentence on why a Harrow GP should care"} for the NICE references in the brief that matter in general practice. "nice_drop": ["TA1206"] for references of no primary care relevance (rare-disease and hospital-only appraisals).
+   - "icb_notes": {"Page name": "what changed and the practical action, one or two sentences"} for each page the brief lists as changed. Flag 2WW or urgent suspected cancer, MSK, CLCH Single Point of Access and mental health routes.
+   - "news_extra": [{"src": "BMJ" or "NEJM", "title": "short headline", "date": "YYYY-MM-DD"}] from Gmail newsletters newer than the dates in the brief, but only if Gmail tools are available in this run (look for them with ToolSearch "gmail"; if there are none, skip this key). Gmail is read-only: never send, label, delete or change an email. Search `from:emails.bmj.com newer_than:8d` and `from:nejmtoc@n.nejm.org newer_than:8d`; open at most one thread per source, and only if it is newer than the date in the brief (NEJM needs messageFormat FULL_CONTENT). Pick up to 3 BMJ and 2 NEJM items useful to a GP, dated with the newsletter's own date. Never copy links, names, addresses or adverts from an email. If nothing is newer, omit the key; earlier items are carried forward automatically.
+   - "catalysts": [{"t": "NTLA", "what": "...", "when": "..."}] only for a dated, confirmed event inside 30 days found with at most 2 WebSearches (NTLA BLA and HAELO, BEAM-302 pivotal, Isomorphic first Phase 1, MRNA mRNA-4157 Phase 3). Omit if none is confirmed.
+   Never put SleepWell, OSA, AcuPebble or CPAP content anywhere.
+
+5. Bash: `cd /home/user/dash && python3 dashboard/daily.py build --work work` . Then Read /home/user/dash/work/publish_files.json .
+
+6. PUBLISH once with the Artifact tool: url above, file_path /home/user/dash/work/dashboard.html , files = exactly the map in publish_files.json. If the publish is refused because a newer version exists or the live page was not viewed, read the artifact again (action read) and publish again; never change the built file. If it still fails, retry once more, then report the failure.
+
+7. Send a PushNotification beginning <routine_summary> only if the publish failed or the build line said "NOT PUBLISHED TODAY" (name those tasks in one line). Finish with a two-line report: panels current, tasks published, and anything the brief listed under Problems.
