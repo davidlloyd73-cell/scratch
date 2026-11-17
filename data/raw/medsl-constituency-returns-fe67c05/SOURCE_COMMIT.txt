@@ -1,0 +1,2 @@
+fe67c056502fc09ddb1ace2ff8f87c53233a744e
+https://github.com/MEDSL/constituency-returns (read-only clone, depth 1), retrieved 2026-11-05 via git proxy

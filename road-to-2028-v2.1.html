@@ -1,0 +1,586 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Road to 2028 Version 2.1</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: status banner and key question on top, then controls | charts, then audit panels full width. Same visual system as Version 1. */
+:root{
+  --bg:#f6f7f9; --panel:#ffffff; --fg:#14181f; --muted:#5b6575; --faint:#8a93a2; --line:#dde1e8; --grid:#eceff3;
+  --d:#2b64b0; --r:#c4432b; --neutral:#e9ecf1; --on-strong:#ffffff; --warn:#a15c00; --ok:#1f7a4d; --bad:#b3261e;
+  --display:'IBM Plex Sans Condensed','Arial Narrow',sans-serif; --body:'IBM Plex Sans',system-ui,sans-serif; --mono:'IBM Plex Mono',ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f131a; --panel:#171c25; --fg:#e8ebf0; --muted:#9aa4b4; --faint:#6f7a8c; --line:#2a3240; --grid:#1f2631;
+  --d:#5d9be8; --r:#ec7a5f; --neutral:#222a36; --on-strong:#ffffff; --warn:#e0a24a; --ok:#58c08b; --bad:#f2837a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f131a; --panel:#171c25; --fg:#e8ebf0; --muted:#9aa4b4; --faint:#6f7a8c; --line:#2a3240; --grid:#1f2631;
+  --d:#5d9be8; --r:#ec7a5f; --neutral:#222a36; --on-strong:#ffffff; --warn:#e0a24a; --ok:#58c08b; --bad:#f2837a; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:14px/1.5 var(--body);padding-block:24px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1180px;margin:0 auto}
+h1{font:600 34px/1.1 var(--display);margin:0 0 6px;letter-spacing:-.01em;text-wrap:balance}
+h2{font:600 18px/1.2 var(--display);margin:0 0 4px;text-wrap:balance}
+h3{font:600 14px/1.3 var(--display);margin:14px 0 4px}
+.lede{max-width:72ch;color:var(--muted);margin:0 0 16px;font-size:15px}
+.kicker{font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:16px;min-width:0}
+.banner{border:1px solid var(--warn);border-left-width:4px;background:var(--panel);border-radius:6px;padding:12px 14px;margin:0 0 16px;font-size:13px}
+.banner b{color:var(--warn)}
+.grid2{display:grid;grid-template-columns:minmax(0,330px) minmax(0,1fr);gap:16px;align-items:start}
+.stack{display:grid;gap:16px;min-width:0}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+@media(max-width:860px){.grid2{grid-template-columns:minmax(0,1fr)}}
+.sub{color:var(--muted);font-size:12.5px;margin:0 0 10px}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-bottom:16px}
+.fact{border-top:2px solid var(--fg);padding-top:6px}.fact b{display:block;font:500 24px/1.1 var(--mono)}.fact span{color:var(--muted);font-size:12.5px}
+.ctl{margin:0 0 12px}.ctl label{display:flex;justify-content:space-between;gap:8px;font-weight:500;font-size:13px}
+.ctl output{font-family:var(--mono)}.ctl small{display:block;color:var(--muted);font-size:11.5px;line-height:1.35;margin-top:2px}
+.sect{font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin:16px 0 8px;padding-top:10px;border-top:1px solid var(--line)}
+input[type=range]{width:100%;accent-color:var(--d);margin:4px 0 0}
+select,input[type=number]{font:500 13px var(--body);color:var(--fg);background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:6px 8px;width:100%;margin-top:4px}
+.presets{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+button{font:500 12.5px var(--body);color:var(--fg);background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:6px 10px;cursor:pointer}
+button:hover{border-color:var(--faint)}button:focus-visible,input:focus-visible,select:focus-visible,td:focus-visible,textarea:focus-visible{outline:2px solid var(--d);outline-offset:2px}
+button[aria-pressed=true]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:12.5px}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:500 11px var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--faint)}
+td.n,th.n{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+.mx{border-collapse:separate;border-spacing:3px;width:100%;table-layout:fixed}
+.mx th{border:0;padding:4px;text-align:center;text-transform:none;letter-spacing:0;font:500 12px var(--body);color:var(--muted)}
+.mx th.rowh{text-align:right;padding-right:8px;white-space:nowrap;width:104px}
+.mx td{border:0;border-radius:3px;text-align:center;padding:9px 4px;cursor:pointer;font:500 15px var(--mono);font-variant-numeric:tabular-nums;color:var(--fg)}
+.mx td small{display:block;font:400 10px var(--mono);opacity:.8}
+.mx td.strong{color:var(--on-strong)}.mx td.sel{outline:2px solid var(--fg);outline-offset:1px}
+.tag{display:inline-block;font:500 10.5px var(--mono);padding:1px 6px;border-radius:3px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.tag.ok{color:var(--ok);border-color:var(--ok)}.tag.warn{color:var(--warn);border-color:var(--warn)}.tag.bad{color:var(--bad);border-color:var(--bad)}
+svg text{font-family:var(--body);fill:var(--muted);font-size:11.5px}svg .lab{fill:var(--fg)}svg .mono{font-family:var(--mono)}
+#tip{position:fixed;pointer-events:none;background:var(--fg);color:var(--bg);padding:6px 9px;border-radius:4px;font-size:12px;max-width:280px;z-index:20;display:none;line-height:1.4}
+.note{font-size:12.5px;color:var(--muted);max-width:84ch}.note b{color:var(--fg)}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--muted);margin:4px 0 0}
+.sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.sq{display:inline-block;width:14px;height:14px;border-radius:2px;margin-right:2px;vertical-align:middle}
+textarea{width:100%;height:150px;font:12px var(--mono);color:var(--fg);background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:8px}
+details{margin:8px 0}summary{cursor:pointer;font-weight:500}
+</style>
+
+<div class="wrap">
+  <div class="kicker" id="verline">Version 2 · scenario analysis · built 5 Nov 2026</div>
+  <h1>Road to 2028 Version 2.1</h1>
+  <p class="lede">The 2026 House result was historic. Whether it is a short revolt against one president, damage to a party, or a lasting shift in the coalition is exactly what the data cannot settle yet. This model rebuilds the forecast on verified election returns and shows how much the answer depends on that one question.</p>
+  <div class="banner"><b>Status: scenario tool, not a validated forecast.</b> On the six comparable historical cycles, the midterm swing predicted the next presidential margin slightly worse than assuming nothing changes (see Validation). Probabilities are shown to the nearest 5% for that reason, with ranges. Hypothetical effects are off by default.</div>
+
+  <div class="facts">
+    <div class="fact"><b id="f1">D+13.5</b><span>2026 House vote, reported 13 to 14, count incomplete (as of 5 Nov). House 2024: R+2.5.</span></div>
+    <div class="fact"><b id="f2">16.0 pts</b><span>Midterm swing S, 2024 to 2026. Largest since 2010 and about 1.4 times 1974's 11.4.</span></div>
+    <div class="fact"><b id="f3">0.45</b><span>Average share of the midterm swing that carried into the next presidential margin, six comparable cycles. Range −0.23 to 0.99.</span></div>
+    <div class="fact"><b id="f4">–</b><span>Median 2028 national margin implied by the dials below.</span></div>
+  </div>
+
+  <section class="panel" style="margin-bottom:16px">
+    <h2>How much of 2026 survives to 2028?</h2>
+    <p class="sub">Each dot is one past cycle: the share of the midterm House swing (horizontal) that appeared in the next presidential margin. The line is the dial setting. Verified data: House results 1976–2024 (MIT Election Lab release 2025-09-10), official Clerk of the House totals for 1972 and 1974.</p>
+    <div class="cols">
+      <div><svg id="betaChart" role="img" aria-label="Persistence by historical cycle"></svg></div>
+      <div><div class="kicker">Watergate window: House margin, D minus R</div><svg id="wgChart" role="img" aria-label="House and presidential margins 1972 to 1980"></svg>
+        <p class="note" id="wgNote"></p></div>
+    </div>
+  </section>
+
+  <div class="grid2">
+    <aside class="panel" aria-label="Model controls">
+      <h2>Dials</h2>
+      <p class="sub">Every change re-runs the simulation. Seed and version are fixed for reproducibility.</p>
+      <div class="presets" id="presets"></div>
+      <div class="sect">Running mates</div>
+      <div class="ctl"><label for="vpd">Democratic running mate</label><select id="vpd"></select></div>
+      <div class="ctl"><label for="vpr">Republican running mate</label><select id="vpr"></select></div>
+      <div class="sect">Persistence of the 2026 swing</div>
+      <div class="ctl"><label for="reg">Historical pattern to apply</label><select id="reg"></select><small id="regHelp"></small></div>
+      <div id="mechBox" hidden></div>
+      <div id="controls"></div>
+      <div class="sect">Reproducibility</div>
+      <div class="ctl"><label for="seed">Random seed</label><input type="number" id="seed" value="20281103"></div>
+      <div class="ctl"><label for="nsim">Simulations per matchup</label><select id="nsim"><option>2000</option><option selected>4000</option><option>8000</option></select></div>
+    </aside>
+
+    <div class="stack">
+      <section class="panel">
+        <h2>Chance the Democrat wins, given who is nominated</h2>
+        <p class="sub">This is P(wins general election | nominated, facing this opponent). It is not the chance of becoming president, which also depends on winning the nomination. Rounded to 5%. Small figure under each: range from the president-running pattern to the open-seat pattern. Click a cell.</p>
+        <div class="scroll"><table class="mx" id="matrix"></table></div>
+        <div class="legend"><span><i class="sw" style="background:var(--r)"></i>Republican favoured</span><span><i class="sw" style="background:var(--neutral)"></i>Toss-up</span><span><i class="sw" style="background:var(--d)"></i>Democrat favoured</span></div>
+      </section>
+
+      <section class="panel">
+        <h2 id="focusTitle">Every Democrat against one opponent</h2>
+        <div class="presets" id="rsel"></div>
+        <div class="cols">
+          <div><div class="kicker">National popular vote margin</div><p class="sub">Dot is the median, thick bar the middle 50%, thin line the middle 90%.</p><svg id="forest" role="img" aria-label="Popular vote margin intervals"></svg></div>
+          <div><div class="kicker">Win probability across persistence patterns</div><p class="sub">Bar spans the president-running pattern (left) to the open-seat pattern (right). Dot is the current dial setting.</p><svg id="wp" role="img" aria-label="Win probability range"></svg></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Historical comparison: what each past pattern implies</h2>
+        <p class="sub" id="anSub"></p>
+        <svg id="analog" role="img" aria-label="Implied outcomes by historical pattern"></svg>
+      </section>
+
+      <section class="panel">
+        <h2>Probability decomposition</h2>
+        <p class="sub" id="decSub"></p>
+        <div class="cols"><div><div class="kicker">Expected national margin, step by step</div><svg id="bridge" role="img" aria-label="Margin bridge"></svg></div>
+        <div><div class="kicker">Win probability as components are added</div><svg id="stages" role="img" aria-label="Win probability by stage"></svg></div></div>
+        <div class="scroll" id="varTbl"></div>
+      </section>
+
+      <section class="panel">
+        <h2 id="evTitle">Electoral votes and state pathways</h2>
+        <p class="sub" id="evSub"></p>
+        <svg id="ev" role="img" aria-label="Electoral vote distribution"></svg>
+        <div class="cols" style="margin-top:12px">
+          <div><div class="kicker">Most common battleground combinations</div><p class="sub">PA MI WI AZ GA NV NC, blue for a Democratic win in that state.</p><div class="scroll" id="patTbl"></div></div>
+          <div><div class="kicker">Named pathways and the tipping-point state</div><div class="scroll" id="pathTbl"></div><svg id="tip7" role="img" aria-label="Tipping point states"></svg></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center"><h2 style="margin:0">All matchups as a table</h2><button id="tblBtn" aria-pressed="false">Show table</button></div>
+        <div class="scroll" id="tblWrap" hidden><table id="tbl"></table></div>
+      </section>
+    </div>
+  </div>
+
+  <section class="panel" style="margin-top:16px">
+    <h2>Model audit and evidence</h2>
+    <p class="sub">Every important input: its value, where it came from, whether it was observed, estimated or assumed, how strong the evidence is, and how far the selected matchup's win probability moves when the input is varied (sensitivity, computed live).</p>
+    <div class="scroll"><table id="audit"></table></div>
+    <h3>Sensitivity, selected matchup</h3><svg id="torn" role="img" aria-label="Sensitivity tornado"></svg>
+  </section>
+
+  <section class="panel" style="margin-top:16px">
+    <h2>Validation</h2>
+    <p class="sub">Retrospective test: predict the presidential margin two years after each midterm using only the other cycles' persistence (leave one out). Computed in your browser from the table below.</p>
+    <div class="scroll" id="valTbl"></div>
+    <h3>Alternative definitions of swing persistence</h3>
+    <p class="note">Persistence depends on how the midterm swing is measured, because uncontested seats are recorded differently by state and year. All five definitions below are computed from the same file. Contested-only is distorted by which seats are counted. The matched-seat panel (same seats contested in every election) agrees with the as-recorded figure.</p>
+    <div class="scroll"><table id="defTbl"></table></div>
+    <p class="note" id="valNote"></p>
+  </section>
+
+  <section class="panel" style="margin-top:16px">
+    <h2>Watergate as a stress test, and what it cannot tell us</h2>
+    <div class="cols">
+      <div class="note">
+        <p><b>What the numbers show.</b> The 1974 House margin was D+16.6 against D+5.2 in 1972 (Clerk of the House, official). Two years later 78% of that 11.4-point swing was still there (D+14.2 in 1976). By 1978 a third was left (D+9.0), and in 1980, the year of Reagan's presidential landslide, the House margin (D+2.5) was below its 1972 level. Democrats still won the 1980 House popular vote.</p>
+        <p><b>Reading it against the three mechanisms.</b> Personal rejection of the president: the 1976 presidential result (D+2.2) was far narrower than the House result, which fits a party that held its congressional gains while the personal rejection faded. Party reputational damage: visible in 1974 and 1976, gone by 1980. Durable realignment: not supported by 1978–1980. These mechanisms are not separately identified by a handful of aggregate cycles, and the model does not claim they are. It lets you set their weights and see the consequence.</p>
+      </div>
+      <div class="note">
+        <p><b>Where 2026 may differ.</b> The 2026 swing is larger (16.0 against 11.4) and the electorate is far more polarised, so fewer voters are available to swing and fewer to swing back. Republican cohesion: Nixon lost his party's leaders and resigned, while Trump keeps his party's support. Media is fragmented, so a shared factual account of the controversies is harder. The 2028 Republican nominee will be a successor, as in 1976 (Ford), though Ford was an incumbent president and Vance would not be.</p>
+        <p><b>Limits.</b> One analogue. The 1976 presidential baseline is distorted by the 1972 landslide, so the 1974 presidential ratio (2.2) is not used. Economic conditions in 1976–80 (inflation, the oil shock) are a competing explanation for 1980. Watergate informs this model, it does not determine its output: choose the pattern in the dial to see the effect.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" style="margin-top:16px">
+    <h2>Version 1 and Version 2.1 under comparable assumptions</h2>
+    <p class="sub">Version 1 default (generic Democrat vs generic Republican) against Version 2 with the closest matching settings. Differences are explained below the table.</p>
+    <div id="v1v2"></div>
+    <p class="note" id="whyChanged"></p>
+  </section>
+
+  <section class="panel" style="margin-top:16px">
+    <h2>Version 2.1 changelog</h2>
+    <p class="sub">Four corrections after an independent review of Version 2. Interface and functionality are unchanged. Still scenario analysis, not a validated forecast.</p>
+    <div class="note">
+      <p><b>1. Popular-vote margin.</b> It was computed from state margins weighted by electoral votes, which is wrong. It now uses each state's actual 2024 votes cast (validated presidential file; Maine and Nebraska whole-state). This feeds every popular-vote figure (matrix tooltips, margin chart, historical comparison, decomposition, export) and the compact. Checks: the vote-weighted 2024 state margins give -1.477 against the actual -1.47; a uniform 16-point swing moves the simulated national margin by 14.51 against 14.51 expected; with the compact at 100% the win probability equals the share of simulations with a positive popular-vote margin (identical). Effect on results: about -0.3 pt on the median margin.</p>
+      <p><b>2. Calibration.</b> The Watergate House-to-House coefficient (0.78) is no longer pooled with six presidential-margin coefficients. The default now uses the six comparable cycles (1994, 2006, 2010, 2014, 2018, 2022): mean 0.40, spread 0.47 (was 0.45 and 0.46). Watergate stays on the page as a separately labelled stress test, and "six cycles plus Watergate" is a sensitivity option. Effect: generic Democrat against generic Republican moves from about 73% to 68% (median margin D+5.6 to D+3.8); with Watergate added back it is 72%.</p>
+      <p><b>3. Backtest, re-run without the inconsistent observation.</b> Six cycles: persistence model 4.5 pts mean error against 4.3 for "nothing changes" (slightly worse), 80% interval held in 4 of 6 cycles, 90% in 6 of 6. Previously (seven cycles including Watergate): 7.0 against 7.3, 5 of 7 and 6 of 7. The earlier apparent edge came from one 20.7-point baseline artefact. The text now says the model did slightly worse than no change and is not validated.</p>
+      <p><b>4. Regional correlations.</b> The shared South and West shock is removed. Twelve presidential transitions (1976 to 2024) show South and West regional swings are not positively correlated (about -0.3, uncertain by 0.3), and state-level pairs average -0.13. The model now has four regions (Rust Belt, South, West, Northeast) with correlations from that estimate, halved for the small sample, plus a new dial (0 = independent, 1 = full estimate). Simulated correlations match the targets (Rust Belt with South -0.34, South with West -0.14, West with Rust Belt -0.07).</p>
+      <p><b>Not changed:</b> defaults for regional size (2.5) and state noise (1.75), all hypothetical effects off by default, the candidate and running-mate treatment, the 2026 inputs.</p>
+    </div>
+    <div class="scroll"><table><tr><th>Generic Democrat v generic Republican</th><th class="n">Version 2.0</th><th class="n">Version 2.1</th></tr><tr><td>Win probability (rounded in the matrix)</td><td class="n">73%</td><td class="n">68%</td></tr><tr><td>Median national margin</td><td class="n">D+5.6</td><td class="n">D+3.8</td></tr><tr><td>90% range</td><td class="n">R+7.0 to D+18.1</td><td class="n">R+7.4 to D+17.9</td></tr><tr><td>Buttigieg v Vance</td><td class="n">78%</td><td class="n">73%</td></tr><tr><td>Ocasio-Cortez v Vance</td><td class="n">73%</td><td class="n">68%</td></tr><tr><td>President-running pattern, generic v generic</td><td class="n">61%</td><td class="n">46%</td></tr><tr><td>Open-seat pattern, generic v generic</td><td class="n">90%</td><td class="n">90%</td></tr></table></div>
+  </section>
+
+  <section class="panel" style="margin-top:16px">
+    <h2>Reproducibility and export</h2>
+    <p class="note">Model version <span id="vername"></span>. Same seed, simulation count and settings give the same numbers in any browser. The text below records every setting and the results shown. Copy it to keep a record.</p>
+    <div class="presets"><button id="copyBtn">Copy to clipboard</button><span id="copyMsg" class="note"></span></div>
+    <textarea id="exportBox" readonly aria-label="Exported model settings and results"></textarea>
+    <h3>Data integrity</h3>
+    <p class="note">Original data files are preserved read-only with checksums in the project repository (<b>data/raw</b>) and every cleaning decision is logged (<b>data/CLEANING_LOG.md</b>). The House file was supplied by the project owner from a distribution of MIT Election Data and Science Lab data (schema version 2025-09-10). Its provenance was not independently verified; its content was, against the Clerk's official totals (1992: +5.12 against +5.20 official) and against a known certified total (California 2018 district 1). Official Clerk totals for 1972, 1974 and 1992 were read from scanned volumes by eye. 2026 figures are incomplete and come from news reports of 3 to 5 November.</p>
+  </section>
+</div>
+<div id="tip" role="status"></div>
+
+<script>
+(function(){
+"use strict";
+var VERSION="RTW2028-v2.1.0";
+// [abbr, EV, 2024 D margin (validated presidential file), Latino share of electorate (my estimate), factor, battleground, 2024 votes cast in thousands (validated file; ME and NE carry the whole state, ME-2 and NE-2 carry none)]
+var ST=[["AL",9,-30.5,.03,"S",0,2265.1],["AK",3,-13.1,.07,"W",0,338.2],["AZ",11,-5.5,.20,"W",1,3389.3],["AR",6,-30.6,.07,"S",0,1182.7],["CA",54,20.1,.27,"W",0,15865.5],["CO",10,11.0,.13,"W",0,3192.7],["CT",7,14.5,.09,"N",0,1759.0],["DE",3,14.7,.06,"N",0,512.9],["DC",3,83.2,.10,"N",0,328.4],["FL",30,-13.1,.20,"S",0,10893.8],["GA",16,-2.2,.04,"S",1,5250.9],["HI",4,22.9,.09,"W",0,522.2],["ID",4,-36.0,.07,"W",0,917.5],["IL",19,10.9,.09,"M",0,5633.3],["IN",11,-19.0,.05,"M",0,2936.7],["IA",6,-13.2,.04,"M",0,1663.5],["KS",6,-16.1,.07,"M",0,1327.6],["KY",8,-30.5,.03,"S",0,2074.5],["LA",8,-22.0,.04,"S",0,2007.0],["ME",3,6.8,.01,"N",0,842.4],["ME-2",1,-9.1,.01,"N",0,0],["MD",10,28.5,.07,"N",0,3038.3],["MA",11,24.9,.06,"N",0,3512.9],["MI",15,-1.4,.03,"M",1,5664.2],["MN",10,4.2,.03,"M",0,3253.9],["MS",6,-22.9,.03,"S",0,1228.0],["MO",10,-18.4,.03,"M",0,2995.3],["MT",4,-19.9,.03,"W",0,603.0],["NE",4,-20.5,.06,"M",0,952.2],["NE-2",1,4.6,.06,"M",0,0],["NV",6,-3.1,.19,"W",1,1484.8],["NH",4,2.8,.03,"N",0,831.0],["NJ",14,5.9,.15,"N",0,4272.7],["NM",5,6.0,.38,"W",0,923.4],["NY",28,12.4,.13,"N",0,8380.6],["NC",16,-3.2,.04,"S",1,5699.1],["ND",3,-36.4,.03,"M",0,368.2],["OH",17,-11.2,.03,"M",0,5767.8],["OK",7,-34.3,.06,"S",0,1566.2],["OR",8,14.3,.07,"W",0,2244.5],["PA",19,-1.7,.06,"M",1,7034.2],["RI",4,13.8,.09,"N",0,513.1],["SC",9,-17.9,.04,"S",0,2548.1],["SD",3,-29.2,.03,"M",0,428.9],["TN",11,-29.7,.03,"S",0,3063.9],["TX",40,-13.7,.27,"S",0,11388.7],["UT",6,-21.6,.08,"W",0,1488.5],["VT",3,31.2,.02,"N",0,372.9],["VA",13,5.8,.08,"S",0,4503.3],["WA",12,18.2,.06,"W",0,3924.2],["WV",4,-41.9,.02,"S",0,762.6],["WI",10,-0.9,.04,"M",1,3422.9],["WY",3,-45.4,.07,"W",0,271.1]];
+var NS=ST.length, FAC={M:0,S:1,W:2,N:3}, BG=["PA","MI","WI","AZ","GA","NV","NC"];
+// Correlation of regional mean swings (deviation from national), 12 transitions 1976-2024 (analysis/regional_structure.py). SE about 0.29 each.
+var CRAW=[[1,-.68,-.13,-.02],[-.68,1,-.31,-.21],[-.13,-.31,1,-.59],[-.02,-.21,-.59,1]];
+function chol(k){var C=[],L=[],n=4,i,j,m;for(i=0;i<n;i++){C.push([]);L.push([0,0,0,0]);for(j=0;j<n;j++)C[i].push(i===j?1:k*CRAW[i][j])}for(i=0;i<n;i++)for(j=0;j<=i;j++){var q=C[i][j];for(m=0;m<j;m++)q-=L[i][m]*L[j][m];if(i===j){if(q<=1e-9)return null;L[i][j]=Math.sqrt(q)}else L[i][j]=q/L[j][j]}return L}
+function sidx(a){for(var j=0;j<NS;j++)if(ST[j][0]===a)return j;return -1}
+var BGI=BG.map(sidx), EVT=0, VT=0; ST.forEach(function(s){EVT+=s[1];VT+=s[6]});
+// Historical cycles. y = midterm year. S = House margin swing at the midterm. Pp/Pn = presidential margin before/after. open = president not running again.
+var CYC=[
+ {y:1974,Hp:5.22,Hm:16.64,Hn:14.15,Pp:-22.98,Pn:2.22,open:0,src:"Clerk official 1972/1974; MIT 1976"},
+ {y:1994,Hp:5.12,Hm:-6.94,Hn:0.55,Pp:5.79,Pn:8.60,open:0,src:"MIT 2025-09-10"},
+ {y:2006,Hp:-2.65,Hm:7.94,Hn:10.65,Pp:-2.43,Pn:7.40,open:1,src:"MIT 2025-09-10"},
+ {y:2010,Hp:10.65,Hm:-6.76,Hn:1.11,Pp:7.40,Pn:3.94,open:0,src:"MIT 2025-09-10"},
+ {y:2014,Hp:1.11,Hm:-5.83,Hn:-1.07,Pp:3.94,Pn:2.18,open:1,src:"MIT 2025-09-10"},
+ {y:2018,Hp:-1.07,Hm:8.57,Hn:3.16,Pp:2.18,Pn:4.45,open:0,src:"MIT 2025-09-10"},
+ {y:2022,Hp:3.16,Hm:-2.83,Hn:-2.48,Pp:4.45,Pn:-1.47,open:1,src:"MIT 2025-09-10"}];
+CYC.forEach(function(c){c.S=c.Hm-c.Hp;c.bP=(c.Pn-c.Pp)/c.S;c.bH=(c.Hn-c.Hp)/c.S;c.beta=c.y===1974?c.bH:c.bP});
+var H24=-2.48, P24=-1.47;
+function mean(a){return a.reduce(function(x,y){return x+y},0)/a.length}
+function sd(a){var m=mean(a);return Math.sqrt(a.reduce(function(s,x){return s+(x-m)*(x-m)},0)/(a.length-1))}
+function cycIdx(f){var o=[];CYC.forEach(function(c,i){if(f(c))o.push(i)});return o}
+var ALL=cycIdx(function(){return 1}),PRIM=cycIdx(function(c){return c.y!==1974});
+var REGS={
+ pool:{lab:"Six comparable cycles pooled (default)",idx:PRIM,h:.2,help:"1994, 2006, 2010, 2014, 2018, 2022: persistence of the midterm House swing in the next presidential margin. Draws a cycle at random and adds a little spread. Mean 0.40, spread 0.47."},
+ poolW:{lab:"Sensitivity: six cycles plus Watergate",idx:ALL,h:.2,help:"Adds 1974 to 1976, whose coefficient is House-to-House (0.78), a different estimator from the other six. Shown as a sensitivity check, not a calibration."},
+ open:{lab:"Open-seat years only (2006, 2014, 2022)",idx:cycIdx(function(c){return c.open}),h:.2,help:"President not running again, as in 2028. Mean 0.72 from three cycles. The gap from the president-running group (0.65) is suggestive but not statistically significant (t about 2.3 with 3 and 3 cycles)."},
+ inc:{lab:"President-running years only (1994, 2010, 2018)",idx:cycIdx(function(c){return !c.open&&c.y!==1974}),h:.2,help:"Mean 0.07 from three cycles."},
+ c1974:{lab:"Watergate stress test (House-to-House, 1974 to 1976)",idx:[0],h:.25,help:"Share of the 1974 House swing present in the 1976 House margin: 0.78. A different measure from the presidential-margin cycles, so kept apart from the calibration."},
+ c2006:{lab:"Bush backlash analogue (2006 to 2008)",idx:[2],h:.25,help:"0.93. The 2008 financial crisis coincided."},
+ c2022:{lab:"Biden-era analogue (2022 to 2024)",idx:[6],h:.25,help:"0.99."},
+ c2014:{lab:"Obama 2014 to 2016 analogue",idx:[4],h:.25,help:"0.25."},
+ c2010:{lab:"Tea Party analogue (2010 to 2012)",idx:[3],h:.25,help:"0.20. Obama won re-election."},
+ c2018:{lab:"Trump 2018 to 2020 analogue",idx:[5],h:.25,help:"0.23."},
+ c1994:{lab:"Republican revolution analogue (1994 to 1996)",idx:[1],h:.25,help:"-0.23. Clinton recovered."},
+ none:{lab:"No persistence (2024 map repeats)",fixed:0,help:"Midterm swing disappears entirely."},
+ full:{lab:"Full persistence",fixed:1,help:"The whole midterm swing carries over."},
+ v1:{lab:"Version 1 setting (0.40 plus or minus 0.18), for comparison",norm:[.4,.18],help:"The persistence Version 1 assumed. It has no empirical spread."},
+ mech:{lab:"Mechanism mix (set the weights)",help:"Personal rejection (persists about 0.1), party damage (about 0.6), durable realignment (about 1.0). Weights are illustrative: the data cannot identify them, so an extra spread of 0.35 is added for that."}};
+var REGORDER=["pool","poolW","open","inc","c1974","c2006","c2022","c2014","c2010","c2018","c1994","none","full","v1","mech"];
+// Candidate polling: Emerson College, 16-17 Aug 2026, n=1000 likely voters (D margin vs Vance, vs Rubio)
+var FV=3.4,FR=0.0;
+var DEM=[{k:"Buttigieg",pv:5,pr:5,m:.3},{k:"Ossoff",pv:5,pr:3,m:.4},{k:"Newsom",pv:5,pr:2,m:.3},{k:"Shapiro",m:.1},{k:"Harris",pv:4,pr:-5,m:.3},{k:"Ocasio-Cortez",pv:-2,pr:-5,m:1,prog:1,se:4.5},{k:"Generic Democrat",gen:1}];
+var REP=[{k:"Vance",raw:1.7,se:2.0},{k:"Rubio",raw:-1.7,se:2.0},{k:"Generic Republican",gen:1}];
+var VPD=[null,{k:"Ocasio-Cortez",pv:-2,pr:-5,m:1,prog:1,se:4.5,h:"NY"},{k:"Shapiro",m:.1,h:"PA"},{k:"Buttigieg",pv:5,pr:5,m:.3,h:"MI"},{k:"Ossoff",pv:5,pr:3,m:.4,h:"GA"},{k:"Kelly",h:"AZ"},{k:"Beshear",h:"KY"}];
+var VPR=[null,{k:"Vance",raw:1.7,se:2.0,h:"OH"},{k:"Rubio",raw:-1.7,se:2.0,h:"FL"}];
+var VD=null,VR=null,selD=1,selR=0;
+var DEF={reg:"pool",sig:1,h26:13.5,h26sd:1.0,eps:1.5,regsd:2.5,rcorr:.5,idio:1.75,el:1,tau:1.5,ideo:0,latO:0,mobB:0,share:11,home:1.5,vpw:.25,pIr:0,pRec:0,pTar:0,pAI:0,ovm:1,npv:0,wT:.4,wR:.35,wD:.25};
+var P=Object.assign({},DEF);
+var CTL=[
+ {sec:"Baseline uncertainty and the 2026 count",id:"sig",lab:"Spread of persistence",min:.5,max:1.5,step:.05,u:"x",help:"Multiplies the spread of the historical pattern. 1.0 is what the cycles show."},
+ {id:"h26",lab:"2026 House margin (D)",min:11,max:16,step:.5,u:" pts",help:"Reported 13 to 14 on 5 Nov, count incomplete. Final may differ."},
+ {id:"eps",lab:"Residual national error (SD)",min:0,max:4,step:.25,u:" pts",help:"Extra national noise beyond the historical spread. Author-set, small."},
+ {sec:"State structure",id:"regsd",lab:"Regional swing differences (SD)",min:.5,max:5,step:.25,u:" pts",help:"Size of the Rust Belt, South, West and Northeast swings relative to the nation. Long-run 2.5 to 3.3 across 12 transitions; 2016 to 2024 about 1. 2012 to 2016 (education realignment) about 5."},
+ {id:"rcorr",lab:"Regional correlation (share of historical estimate)",min:0,max:1,step:.1,u:"x",help:"Rust Belt, South, West and Northeast swings are correlated as in 12 presidential transitions (1976 to 2024): Rust Belt against South about -0.7, West against Northeast about -0.6, South against West about -0.3 (each uncertain by ±0.3). 0.5 uses half the estimate; 0 makes the regions independent. There is no shared South and West shock."},
+ {id:"idio",lab:"State-specific noise (SD)",min:.5,max:4,step:.25,u:" pts",help:"Battleground states deviated from the national swing by about 1.75 pts (SD) in 2016 to 20 and 2020 to 24."},
+ {id:"el",lab:"Battleground elasticity",min:.5,max:1.2,step:.05,u:"x",help:"1.0 moves the seven battlegrounds as much as the nation. In 2024 they moved about 0.6 as much (+2.5 pts less than the nation); in 2020 about 1.0."},
+ {sec:"Candidates",id:"tau",lab:"Real candidate-to-candidate variation (SD)",min:.5,max:3,step:.25,u:" pts",help:"Higher trusts early head-to-head polls more. One poll of 1,000 gives about 3 pts of sampling error on each margin."},
+ {id:"vpw",lab:"Running-mate weight",min:0,max:.6,step:.05,u:"x",help:"Share of the running mate's own effect carried onto the ticket."},
+ {id:"home",lab:"Home-state bonus for a running mate",min:0,max:3,step:.5,u:" pts",help:"Heersink and Peterson (2016) estimate 2.67 pts averaged over 1884 to 2012. Shrunk to 1.5 for polarisation. Hypothetical."},
+ {sec:"Hypothetical effects (all off by default)",id:"ideo",lab:"Extra ideology penalty",min:0,max:5,step:.5,u:" pts",help:"Head-to-head polls already include how voters see a candidate's ideology. Use this only to test a belief that the campaign will make it matter more. No evidence for a value."},
+ {id:"latO",lab:"Latino swing relative to everyone else",min:-10,max:10,step:1,u:" pts",help:"Negative: Latino voters move back toward Republicans. Applied by each state's Latino share (my estimate). Hypothetical."},
+ {id:"mobB",lab:"Turnout bonus for the top mobiliser",min:0,max:3,step:.25,u:" pts",help:"National margin gain for a candidate who raises youth and Latino turnout (Ocasio-Cortez 1.0, Ossoff .4, Buttigieg, Newsom, Harris .3). No data on this."},
+ {id:"pIr",lab:"Iran conflict unresolved at election",min:0,max:100,step:5,u:"%",help:"Adds 1.5 pts for Democrats if it happens. Polls: 57% say the war was the wrong decision. Effect size assumed."},
+ {id:"pRec",lab:"Recession by late 2028",min:0,max:80,step:5,u:"%",help:"Adds 2.5 pts for Democrats. Correlated with the next two (copula 0.5)."},
+ {id:"pTar",lab:"Tariff price pain persists",min:0,max:100,step:5,u:"%",help:"Adds 1.0 pt. Polls: 74 to 82% say tariffs raised prices. Effect size assumed."},
+ {id:"pAI",lab:"Visible AI job-loss wave",min:0,max:100,step:5,u:"%",help:"Adds 1.0 pt. Voters trust neither party on AI. Effect size assumed."},
+ {id:"npv",lab:"Popular-vote compact in force",min:0,max:100,step:5,u:"%",help:"At 222 of 270 pledged electoral votes. Probability is a guess."}];
+var PRE=[["Base",{}],["Fades fast",{reg:"inc"}],["Waves hold",{reg:"open"}],["Watergate pattern",{reg:"c1974"}],["No persistence",{reg:"none"}],["Latino snapback",{latO:-6}],["Stagflation",{pRec:45,pTar:90,pAI:60}],["Relief",{pIr:0,pRec:10,pTar:15,pAI:10}]];
+
+// ---------- seeded draws ----------
+function mul(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function Phi(x){var t=1/(1+.2316419*Math.abs(x)),d=.3989423*Math.exp(-x*x/2),p=d*t*(.3193815+t*(-.3565638+t*(1.781478+t*(-1.821256+t*1.330274))));return x>0?1-p:p}
+var Dr=null,N=4000;
+function build(seed,n){
+  N=n;var r=mul(seed>>>0);function nz(){var u=0;while(!u)u=r();return Math.sqrt(-2*Math.log(u))*Math.cos(6.283185307*r())}
+  Dr={};["zH","zH24","zb","ub","uc","zT","zR","zD","zE","zCd","zCr","ur","ut","ua","ui","un"].forEach(function(k){Dr[k]=new Float32Array(n)});
+  Dr.fac=new Float32Array(n*4);Dr.st=new Float32Array(n*NS);
+  for(var i=0;i<n;i++){Dr.zH[i]=nz();Dr.zH24[i]=nz();Dr.zb[i]=nz();Dr.ub[i]=r();Dr.uc[i]=r();Dr.zT[i]=nz();Dr.zR[i]=nz();Dr.zD[i]=nz();Dr.zE[i]=nz();Dr.zCd[i]=nz();Dr.zCr[i]=nz();
+    var z0=nz(),a=Math.sqrt(.5),b=Math.sqrt(.5);Dr.ur[i]=Phi(a*z0+b*nz());Dr.ut[i]=Phi(a*z0+b*nz());Dr.ua[i]=Phi(a*z0+b*nz());Dr.ui[i]=r();Dr.un[i]=r();
+    for(var f=0;f<4;f++)Dr.fac[i*4+f]=nz();}
+  for(i=0;i<Dr.st.length;i++)Dr.st[i]=nz();
+}
+// ---------- candidate effects (poll shrinkage) ----------
+function fx(c,Q){
+  if(c.gen)return{e:0,s:.7};
+  var raw=null,se=c.se||3.2;
+  if(c.raw!==undefined)raw=c.raw;else if(c.pv!==undefined)raw=((c.pv-FV)+(c.pr-FR))/2;
+  if(raw===null)return{e:0,s:Q.tau};
+  var k=Q.tau*Q.tau/(Q.tau*Q.tau+se*se);return{e:k*raw,s:se*Math.sqrt(k)};
+}
+function betaDraw(Q,i){
+  if(Q.noPersist)return 0;
+  if(Q.reg==="mech"){var s=Q.wT+Q.wR+Q.wD||1;return(Q.wT*(.10+.15*Dr.zT[i])+Q.wR*(.60+.20*Dr.zR[i])+Q.wD*(1+.15*Dr.zD[i]))/s+.35*Q.sig*Dr.zb[i]}
+  var R=REGS[Q.reg];if(R.fixed!==undefined)return R.fixed;
+  if(R.norm)return R.norm[0]+R.norm[1]*Q.sig*Dr.zb[i];
+  var c=CYC[R.idx[Math.floor(Dr.uc[i]*R.idx.length)]];return c.beta+R.h*Q.sig*Dr.zb[i];
+}
+function EXP_beta(Q){if(Q.noPersist)return 0;if(Q.reg==="mech"){var s=Q.wT+Q.wR+Q.wD||1;return(Q.wT*.1+Q.wR*.6+Q.wD*1)/s}var R=REGS[Q.reg];if(R.fixed!==undefined)return R.fixed;if(R.norm)return R.norm[0];return mean(R.idx.map(function(j){return CYC[j].beta}))}
+function SD_beta(Q){if(Q.noPersist)return 0;if(Q.reg==="mech")return Math.sqrt(.15*.15+Math.pow(.35*Q.sig,2));var R=REGS[Q.reg];if(R.fixed!==undefined)return 0;if(R.norm)return R.norm[1]*Q.sig;var b=R.idx.map(function(j){return CYC[j].beta});return Math.sqrt((b.length>1?Math.pow(sd(b),2):0)+Math.pow(R.h*Q.sig,2))}
+// ---------- simulation ----------
+function sim(di,ri,Q,full){
+  var d=DEM[di],r=REP[ri],fd=fx(d,Q),fr=fx(r,Q),n=N;
+  var vd=(VD&&VD.k!==d.k)?VD:null,vr=(VR&&VR.k!==r.k)?VR:null,fvd=vd?fx(vd,Q):null,fvr=vr?fx(vr,Q):null;
+  var cand=Q.noCand?0:(fd.e+fr.e+(fvd?Q.vpw*fvd.e:0)+(fvr?Q.vpw*fvr.e:0));
+  var ide=Q.noCand?0:(d.prog?Q.ideo:0)+(vd&&vd.prog?Q.vpw*Q.ideo:0);
+  var mob=Q.noCand?0:Math.min(1.5,(d.m||0)+(vd?Q.vpw*(vd.m||0):0));
+  var hd=(vd&&!Q.noCand)?sidx(vd.h):-1,hr=(vr&&!Q.noCand)?sidx(vr.h):-1,sc=Q.share/11;
+  var L=chol(Q.rcorr)||chol(0),F4=new Float64Array(4),bgm=full?new Float32Array(n*7):null,ev=new Float32Array(n),pm=new Float32Array(n),wins=0,pat=full?new Uint8Array(n):null,win=full?new Uint8Array(n):null,tip=full?new Uint32Array(NS):null,mg=new Float32Array(NS),ord=new Int32Array(NS);
+  for(var i=0;i<n;i++){
+    var beta=betaDraw(Q,i),S=(Q.h26+Q.h26sd*Dr.zH[i])-(H24+.4*Dr.zH24[i]);
+    var ov=Q.noOvl?0:Q.ovm*((Dr.ui[i]<Q.pIr/100?1.5:0)+(Dr.ur[i]<Q.pRec/100?2.5:0)+(Dr.ut[i]<Q.pTar/100?1:0)+(Dr.ua[i]<Q.pAI/100?1:0));
+    var dN=beta*S+cand-ide+mob*Q.mobB+ov+Q.eps*Dr.zE[i]+(Q.noCand?0:fd.s*Dr.zCd[i]+fr.s*Dr.zCr[i]);
+    var tot=0,wsum=0,z0=Dr.fac[i*4],z1=Dr.fac[i*4+1],z2=Dr.fac[i*4+2],z3=Dr.fac[i*4+3];
+    F4[0]=L[0][0]*z0;F4[1]=L[1][0]*z0+L[1][1]*z1;F4[2]=L[2][0]*z0+L[2][1]*z1+L[2][2]*z2;F4[3]=L[3][0]*z0+L[3][1]*z1+L[3][2]*z2+L[3][3]*z3;
+    for(var s=0;s<NS;s++){
+      var S_=ST[s],l=Math.min(.6,S_[3]*sc),m=S_[2]+(S_[5]?Q.el:1)*dN+Q.regsd*F4[FAC[S_[4]]]+Q.idio*Dr.st[i*NS+s]+l*Q.latO+(s===hd?Q.home:0)-(s===hr?Q.home:0);
+      mg[s]=m;if(m>0)tot+=S_[1];wsum+=S_[6]*(m-S_[2]);
+    }
+    ev[i]=tot;pm[i]=P24+wsum/VT;
+    var w=Dr.un[i]<Q.npv/100?(pm[i]>0?1:0):(tot>269?1:(tot===269?.5:0));wins+=w;
+    if(full){var p=0;for(var b=0;b<7;b++){bgm[i*7+b]=mg[BGI[b]];if(mg[BGI[b]]>0)p|=(1<<b)}pat[i]=p;win[i]=w>0?1:0;
+      for(s=0;s<NS;s++)ord[s]=s;ord.sort(function(a,b){return mg[b]-mg[a]});var c=0;for(s=0;s<NS;s++){c+=ST[ord[s]][1];if(c>=270){tip[ord[s]]++;break}}}
+  }
+  var e2=Float32Array.from(ev).sort(),p2=Float32Array.from(pm).sort();
+  function q(a,x){return a[Math.min(a.length-1,Math.max(0,Math.round(x*(a.length-1))))]}
+  var res={p:wins/n,ev:[q(e2,.1),q(e2,.5),q(e2,.9)],m:[q(p2,.05),q(p2,.25),q(p2,.5),q(p2,.75),q(p2,.95)],mcse:Math.sqrt(Math.max(.0001,wins/n*(1-wins/n))/n)};
+  if(full){res.evs=ev;res.pat=pat;res.win=win;res.tip=tip;res.pm=pm;res.bgm=bgm}
+  return res;
+}
+function cur(over){return Object.assign({},P,over||{})}
+
+// ---------- helpers ----------
+var $=function(s){return document.querySelector(s)},NSV="http://www.w3.org/2000/svg",tip=$("#tip");
+function el(n,a,t){var e=document.createElementNS(NSV,n);for(var k in a)e.setAttribute(k,a[k]);if(t!=null)e.textContent=t;return e}
+function showTip(e,h){tip.innerHTML=h;tip.style.display="block";tip.style.left=Math.max(8,Math.min(e.clientX+12,window.innerWidth-290))+"px";tip.style.top=(e.clientY+14)+"px"}
+function hideTip(){tip.style.display="none"}
+function r5(p){return Math.round(p*20)*5}
+function pc(p){return Math.round(p*100)+"%"}
+function sg(x){return(x>=0?"D+":"R+")+Math.abs(x).toFixed(1)}
+function clamp(x,a,b){return x<a?a:x>b?b:x}
+function svgSize(id,H){var s=$(id),W=Math.max(300,s.parentNode.clientWidth||340);s.innerHTML="";s.setAttribute("viewBox","0 0 "+W+" "+H);s.setAttribute("width","100%");s.setAttribute("height",H);return[s,W]}
+var cache={},extra={};
+
+// ---------- main run ----------
+var timer=null;
+function sched(){clearTimeout(timer);timer=setTimeout(run,140)}
+function run(){
+  build(+$("#seed").value||20281103,+$("#nsim").value);cache={};
+  DEM.forEach(function(d,a){REP.forEach(function(r,b){cache[a+"_"+b]=sim(a,b,cur(),a===selD&&b===selR)})});
+  var o=cache[selD+"_"+selR];$("#f4").textContent=sg(o.m[2]);
+  drawMatrix();drawTable();drawBeta();drawWG();
+  setTimeout(function(){drawFocus();drawAnalog();drawDecomp();drawEV();drawAudit();drawExport()},20);
+}
+function mixc(p){var x=Math.abs(p-.5)*2,c=p>=.5?"var(--d)":"var(--r)",k=Math.round(clamp(x,0,1)*88);return{bg:"color-mix(in srgb,"+c+" "+k+"%,var(--neutral))",strong:k>42}}
+function band(a,b){var lo=sim(a,b,cur({reg:"inc"}),false).p,hi=sim(a,b,cur({reg:"open"}),false).p;return[Math.min(lo,hi),Math.max(lo,hi)]}
+var bandCache={};
+function drawMatrix(){
+  var h='<tr><th></th>'+REP.map(function(r){return'<th scope="col">vs '+r.k+'</th>'}).join("")+'</tr>';
+  DEM.forEach(function(d,a){h+='<tr><th scope="row" class="rowh">'+d.k+'</th>';REP.forEach(function(r,b){var o=cache[a+"_"+b],m=mixc(o.p),k=a+"_"+b,bd=bandCache[k]?'<small>'+r5(bandCache[k][0])+'–'+r5(bandCache[k][1])+'</small>':'<small>&nbsp;</small>';
+    h+='<td tabindex="0" data-a="'+a+'" data-b="'+b+'" class="'+(m.strong?"strong ":"")+(a===selD&&b===selR?"sel":"")+'" style="background:'+m.bg+'" aria-label="'+d.k+' vs '+r.k+': about '+r5(o.p)+' percent">~'+r5(o.p)+bd+'</td>'});h+='</tr>'});
+  var t=$("#matrix");t.innerHTML=h;
+  t.querySelectorAll("td").forEach(function(td){var a=+td.dataset.a,b=+td.dataset.b,o=cache[a+"_"+b];
+    td.onclick=td.onkeydown=function(e){if(e.type==="keydown"&&e.key!=="Enter"&&e.key!==" ")return;selD=a;selR=b;run()};
+    td.onmousemove=function(e){showTip(e,"<b>"+DEM[a].k+" v "+REP[b].k+"</b><br>Win "+pc(o.p)+" (simulation error ±"+(o.mcse*196).toFixed(1)+" pts)<br>Median margin "+sg(o.m[2])+"<br>Median EV "+Math.round(o.ev[1])+" (80%: "+Math.round(o.ev[0])+"–"+Math.round(o.ev[2])+")")};td.onmouseleave=hideTip});
+  setTimeout(function(){var k=0;DEM.forEach(function(d,a){REP.forEach(function(r,b){bandCache[a+"_"+b]=band(a,b)})});if(Object.keys(bandCache).length)drawMatrixBands()},30);
+}
+function drawMatrixBands(){document.querySelectorAll("#matrix td").forEach(function(td){var k=td.dataset.a+"_"+td.dataset.b,bd=bandCache[k];if(bd){var s=td.querySelector("small");if(s)s.textContent=r5(bd[0])+"–"+r5(bd[1])}})}
+function drawFocus(){
+  $("#focusTitle").textContent="Every Democrat against "+REP[selR].k+vpNote();
+  var rs=$("#rsel");rs.innerHTML="";REP.forEach(function(r,b){var bt=document.createElement("button");bt.textContent="vs "+r.k;bt.setAttribute("aria-pressed",b===selR);bt.onclick=function(){selR=b;run()};rs.appendChild(bt)});
+  var lo=[],hi=[];DEM.forEach(function(d,a){lo.push(sim(a,selR,cur({reg:"inc"}),false).p);hi.push(sim(a,selR,cur({reg:"open"}),false).p)});
+  var rowH=34,lab=116,H=DEM.length*rowH+44,A=svgSize("#forest",H),f=A[0],W=A[1],B=svgSize("#wp",H),w=B[0];
+  var xl=-12,xh=24,X=function(v){return lab+(v-xl)/(xh-xl)*(W-lab-14)},Y=function(v){return lab+v/100*(W-lab-14)};
+  for(var v=-10;v<=20;v+=5){f.appendChild(el("line",{x1:X(v),x2:X(v),y1:6,y2:H-26,stroke:v===0?"var(--fg)":"var(--grid)"}));f.appendChild(el("text",{x:X(v),y:H-10,"text-anchor":"middle",class:"mono"},v===0?"0":(v>0?"D+":"R+")+Math.abs(v)))}
+  for(v=0;v<=100;v+=25){w.appendChild(el("line",{x1:Y(v),x2:Y(v),y1:6,y2:H-26,stroke:v===50?"var(--fg)":"var(--grid)"}));w.appendChild(el("text",{x:Y(v),y:H-10,"text-anchor":"middle",class:"mono"},v+"%"))}
+  DEM.forEach(function(d,a){var y=16+a*rowH,o=cache[a+"_"+selR],sel=a===selD;
+    [f,w].forEach(function(s){s.appendChild(el("text",{x:lab-8,y:y+4,"text-anchor":"end",class:sel?"lab":"",style:sel?"font-weight:600":""},d.k))});
+    f.appendChild(el("line",{x1:X(o.m[0]),x2:X(o.m[4]),y1:y,y2:y,stroke:"var(--d)","stroke-width":2,opacity:.55}));f.appendChild(el("line",{x1:X(o.m[1]),x2:X(o.m[3]),y1:y,y2:y,stroke:"var(--d)","stroke-width":8,"stroke-linecap":"round"}));f.appendChild(el("circle",{cx:X(o.m[2]),cy:y,r:5,fill:"var(--panel)",stroke:"var(--d)","stroke-width":2}));
+    w.appendChild(el("line",{x1:Y(lo[a]*100),x2:Y(hi[a]*100),y1:y,y2:y,stroke:"var(--d)","stroke-width":8,"stroke-linecap":"round",opacity:.35}));w.appendChild(el("circle",{cx:Y(o.p*100),cy:y,r:5.5,fill:o.p>=.5?"var(--d)":"var(--r)",stroke:"var(--panel)","stroke-width":2}));
+    w.appendChild(el("text",{x:W-4,y:y+4,"text-anchor":"end",class:"lab mono"},"~"+r5(o.p)+"%"));
+    [f,w].forEach(function(s){var h=el("rect",{x:0,y:y-16,width:W,height:32,fill:"transparent",style:"cursor:pointer"});h.onclick=function(){selD=a;run()};h.onmousemove=function(e){showTip(e,"<b>"+d.k+" v "+REP[selR].k+"</b><br>Median "+sg(o.m[2])+"<br>50%: "+sg(o.m[1])+" to "+sg(o.m[3])+"<br>90%: "+sg(o.m[0])+" to "+sg(o.m[4])+"<br>Win "+pc(o.p)+"; range across patterns "+pc(Math.min(lo[a],hi[a]))+" to "+pc(Math.max(lo[a],hi[a])))};h.onmouseleave=hideTip;s.appendChild(h)})});
+}
+function vpNote(){var t=[];if(VD)t.push(VD.k+" as Democratic VP");if(VR)t.push(VR.k+" as Republican VP");return t.length?" ("+t.join(", ")+")":""}
+// ---------- historical charts ----------
+function drawBeta(){
+  var prim=CYC.filter(function(c){return c.y!==1974}),A=svgSize("#betaChart",270),s=A[0],W=A[1],lab=104,X=function(v){return lab+(v+.5)/(1.5)*(W-lab-16)};
+  [-.5,0,.5,1].forEach(function(v){s.appendChild(el("line",{x1:X(v),x2:X(v),y1:6,y2:222,stroke:v===0?"var(--fg)":"var(--grid)"}));s.appendChild(el("text",{x:X(v),y:240,"text-anchor":"middle",class:"mono"},v.toFixed(1)))});
+  s.appendChild(el("text",{x:lab,y:258},"share of the midterm swing that persisted"));
+  prim.forEach(function(c,i){var y=18+i*26,fill=c.open?"var(--d)":"var(--r)";
+    s.appendChild(el("text",{x:lab-8,y:y+4,"text-anchor":"end",class:"lab"},c.y+"→"+(c.y+2)));
+    s.appendChild(el("circle",{cx:X(clamp(c.beta,-.5,1.1)),cy:y,r:6,fill:fill,stroke:"var(--panel)","stroke-width":2}));
+    var h=el("rect",{x:0,y:y-13,width:W,height:26,fill:"transparent"});h.onmousemove=function(e){showTip(e,"<b>"+c.y+" midterm</b> ("+(c.open?"president not running":"president running")+")<br>House swing "+(c.S>=0?"+":"")+c.S.toFixed(1)+"<br>Persistence in the presidential margin "+c.beta.toFixed(2)+"<br>Source: "+c.src)};h.onmouseleave=hideTip;s.appendChild(h)});
+  var yw=18+prim.length*26+24,w=CYC[0];
+  s.appendChild(el("line",{x1:6,x2:W-6,y1:yw-20,y2:yw-20,stroke:"var(--line)","stroke-dasharray":"3 3"}));
+  s.appendChild(el("text",{x:lab-8,y:yw+4,"text-anchor":"end",class:"lab"},"1974→1976"));s.appendChild(el("text",{x:W-6,y:yw-24,"text-anchor":"end"},"stress test, different measure"));
+  s.appendChild(el("circle",{cx:X(w.bH),cy:yw,r:6,fill:"var(--panel)",stroke:"var(--fg)","stroke-width":2}));
+  var hw=el("rect",{x:0,y:yw-13,width:W,height:26,fill:"transparent"});hw.onmousemove=function(e){showTip(e,"<b>Watergate, 1974 to 1976</b><br>House-to-House persistence "+w.bH.toFixed(2)+" (not comparable with the dots above, which use the presidential margin).<br>Presidential-margin ratio "+w.bP.toFixed(1)+" is distorted by the 1972 landslide baseline.<br>Source: "+w.src)};hw.onmouseleave=hideTip;s.appendChild(hw);
+  var eb=EXP_beta(P);s.appendChild(el("line",{x1:X(eb),x2:X(eb),y1:6,y2:222,stroke:"var(--warn)","stroke-width":2,"stroke-dasharray":"4 3"}));s.appendChild(el("text",{x:X(eb)+4,y:16,style:"fill:var(--warn)"},"dial "+eb.toFixed(2)));
+  s.appendChild(el("text",{x:W-4,y:258,"text-anchor":"end"},"blue: open seat, red: president running"));
+  $("#f3").textContent=mean(prim.map(function(c){return c.beta})).toFixed(2);
+}
+function drawWG(){
+  var A=svgSize("#wgChart",250),s=A[0],W=A[1],pl=40,X=function(y){return pl+(y-1972)/8*(W-pl-14)},Y=function(v){return 12+(20-v)/(20+25)*196};
+  [-20,-10,0,10,20].forEach(function(v){s.appendChild(el("line",{x1:pl,x2:W-8,y1:Y(v),y2:Y(v),stroke:v===0?"var(--fg)":"var(--grid)"}));s.appendChild(el("text",{x:pl-4,y:Y(v)+4,"text-anchor":"end",class:"mono"},v))});
+  [1972,1974,1976,1978,1980].forEach(function(y){s.appendChild(el("text",{x:X(y),y:226,"text-anchor":"middle",class:"mono"},y))});
+  var H=[[1972,5.22,"official"],[1974,16.64,"official"],[1976,14.15,"MIT file"],[1978,8.96,"MIT file"],[1980,2.54,"MIT file"]],Pp=[[1972,-22.98],[1976,2.22],[1980,-9.44]];
+  var d="";H.forEach(function(p,i){d+=(i?"L":"M")+X(p[0])+" "+Y(p[1])});s.appendChild(el("path",{d:d,fill:"none",stroke:"var(--d)","stroke-width":2}));
+  H.forEach(function(p){s.appendChild(el("circle",{cx:X(p[0]),cy:Y(p[1]),r:5,fill:"var(--d)",stroke:"var(--panel)","stroke-width":2}));s.appendChild(el("text",{x:X(p[0])+(p[0]===1972?8:0),y:Y(p[1])-(p[0]===1972?4:9),"text-anchor":p[0]===1972?"start":"middle",class:"lab mono"},(p[1]>0?"+":"")+p[1].toFixed(1)))});
+  Pp.forEach(function(p){var late=p[0]===1980;s.appendChild(el("rect",{x:X(p[0])-5,y:Y(p[1])-5,width:10,height:10,fill:"var(--panel)",stroke:"var(--r)","stroke-width":2}));s.appendChild(el("text",{x:X(p[0])+(late?-9:9),y:Y(p[1])+4,"text-anchor":late?"end":"start",class:"mono"},(p[1]>0?"+":"")+p[1].toFixed(1)))});
+  s.appendChild(el("text",{x:pl+4,y:246},"circles: House margin. squares: presidential margin."));
+  $("#wgNote").textContent="Persistence of the 1974 swing: 0.78 after two years, 0.33 after four, −0.23 after six. 1976 House figure is uncertain by about a point (MIT file +14.2, secondary sources +13.6).";
+}
+// ---------- analog regimes ----------
+function drawAnalog(){
+  var a=selD,b=selR;$("#anSub").textContent="Selected matchup: "+DEM[a].k+" v "+REP[b].k+". Each row applies one historical pattern of persistence to the 2026 swing, with everything else at its current setting. Bar: 90% range of the national popular vote margin. Dot: median.";
+  var keys=REGORDER.filter(function(k){return k!=="mech"&&k!=="v1"}),res=keys.map(function(k){return[k,sim(a,b,cur({reg:k}),false)]}).sort(function(x,y){return x[1].m[2]-y[1].m[2]});
+  var rowH=26,lab=210,H=res.length*rowH+36,A=svgSize("#analog",H),s=A[0],W=A[1],xl=-16,xh=30,X=function(v){return lab+(v-xl)/(xh-xl)*(W-lab-60)};
+  for(var v=-10;v<=30;v+=10){s.appendChild(el("line",{x1:X(v),x2:X(v),y1:4,y2:H-24,stroke:v===0?"var(--fg)":"var(--grid)"}));s.appendChild(el("text",{x:X(v),y:H-8,"text-anchor":"middle",class:"mono"},v===0?"0":(v>0?"D+":"R+")+Math.abs(v)))}
+  res.forEach(function(r,i){var y=14+i*rowH,o=r[1],cur_=r[0]===P.reg;s.appendChild(el("text",{x:lab-8,y:y+4,"text-anchor":"end",class:cur_?"lab":"",style:cur_?"font-weight:600":""},REGS[r[0]].lab.replace(/ \(.*\)/,"")));
+    s.appendChild(el("line",{x1:X(o.m[0]),x2:X(o.m[4]),y1:y,y2:y,stroke:"var(--d)","stroke-width":2,opacity:.55}));s.appendChild(el("circle",{cx:X(o.m[2]),cy:y,r:5,fill:o.m[2]>0?"var(--d)":"var(--r)",stroke:"var(--panel)","stroke-width":2}));
+    s.appendChild(el("text",{x:W-4,y:y+4,"text-anchor":"end",class:"lab mono"},"~"+r5(o.p)+"%"));
+    var h=el("rect",{x:0,y:y-12,width:W,height:24,fill:"transparent"});h.onmousemove=function(e){showTip(e,"<b>"+REGS[r[0]].lab+"</b><br>"+REGS[r[0]].help+"<br>Median margin "+sg(o.m[2])+"; win "+pc(o.p))};h.onmouseleave=hideTip;s.appendChild(h)});
+  extra.analog=res.map(function(r){return{pattern:r[0],win:r[1].p,median_margin:r[1].m[2]}});
+}
+// ---------- decomposition ----------
+function drawDecomp(){
+  var a=selD,b=selR,Q=cur(),d=DEM[a],r=REP[b],fd=fx(d,Q),fr=fx(r,Q),vd=(VD&&VD.k!==d.k)?VD:null,vr=(VR&&VR.k!==r.k)?VR:null;
+  var S=Q.h26-H24,pers=EXP_beta(Q)*S,cands=fd.e+fr.e,vps=(vd?Q.vpw*fx(vd,Q).e:0)+(vr?Q.vpw*fx(vr,Q).e:0),ideo=-(d.prog?Q.ideo:0)-(vd&&vd.prog?Q.vpw*Q.ideo:0),
+      mobv=Math.min(1.5,(d.m||0)+(vd?Q.vpw*(vd.m||0):0))*Q.mobB,ovl=Q.ovm*(Q.pIr/100*1.5+Q.pRec/100*2.5+Q.pTar/100*1+Q.pAI/100*1);
+  var steps=[["2024 margin",P24,P24],["Persistence of 2026",P24,P24+pers],["Candidates (shrunk)",0,cands],["Running mates",0,vps],["Hypothetical effects",0,ideo+mobv],["Scenario overlays",0,ovl]],cum=P24,rows=[];
+  rows.push({l:steps[0][0],a:0,b:P24});cum=P24;
+  [[steps[1][0],pers],[steps[2][0],cands],[steps[3][0],vps],[steps[4][0],ideo+mobv],[steps[5][0],ovl]].forEach(function(x){rows.push({l:x[0],a:cum,b:cum+x[1]});cum+=x[1]});
+  rows.push({l:"Expected 2028 margin",a:0,b:cum});
+  var A=svgSize("#bridge",rows.length*30+34),s=A[0],W=A[1],lab=138,xl=-6,xh=Math.max(14,Math.ceil(cum+3)),X=function(v){return lab+(v-xl)/(xh-xl)*(W-lab-50)};
+  for(var v=Math.ceil(xl/4)*4;v<=xh;v+=4){s.appendChild(el("line",{x1:X(v),x2:X(v),y1:4,y2:rows.length*30+4,stroke:v===0?"var(--fg)":"var(--grid)"}));s.appendChild(el("text",{x:X(v),y:rows.length*30+20,"text-anchor":"middle",class:"mono"},v))}
+  rows.forEach(function(rw,i){var y=18+i*30,x1=X(Math.min(rw.a,rw.b)),x2=X(Math.max(rw.a,rw.b)),last=i===rows.length-1||i===0;
+    s.appendChild(el("text",{x:lab-8,y:y+4,"text-anchor":"end",class:last?"lab":""},rw.l));s.appendChild(el("rect",{x:x1,y:y-7,width:Math.max(2,x2-x1),height:14,rx:2,fill:last?"var(--fg)":(rw.b>=rw.a?"var(--d)":"var(--r)"),opacity:last?.8:1}));
+    s.appendChild(el("text",{x:x2+6,y:y+4,class:"lab mono"},(i===0||i===rows.length-1)?sg(rw.b):((rw.b-rw.a)>=0?"+":"")+(rw.b-rw.a).toFixed(1)))});
+  var st=[["Map and noise only",cur({noPersist:1,noCand:1,noOvl:1})],["+ persistence",cur({noCand:1,noOvl:1})],["+ candidates, VPs",cur({noOvl:1})],["+ hypotheticals",cur()]].map(function(x){return[x[0],sim(a,b,x[1],false)]});
+  var B=svgSize("#stages",st.length*40+30),t=B[0],W2=B[1],X2=function(v){return 120+v*(W2-120-50)};
+  [0,.25,.5,.75,1].forEach(function(v){t.appendChild(el("line",{x1:X2(v),x2:X2(v),y1:4,y2:st.length*40,stroke:v===.5?"var(--fg)":"var(--grid)"}));t.appendChild(el("text",{x:X2(v),y:st.length*40+16,"text-anchor":"middle",class:"mono"},Math.round(v*100)+"%"))});
+  st.forEach(function(x,i){var y=20+i*40;t.appendChild(el("text",{x:112,y:y+4,"text-anchor":"end"},x[0]));t.appendChild(el("rect",{x:X2(0),y:y-9,width:X2(x[1].p)-X2(0),height:18,rx:2,fill:x[1].p>=.5?"var(--d)":"var(--r)"}));t.appendChild(el("text",{x:X2(x[1].p)+6,y:y+4,class:"lab mono"},"~"+r5(x[1].p)+"%"))});
+  $("#decSub").textContent="Selected matchup: "+d.k+" v "+r.k+vpNote()+". Left: expected national margin built up from the 2024 result (means; spread is in the table). Right: the same matchup's win probability, adding components in the order shown.";
+  var vp=Math.pow(SD_beta(Q)*S,2),vh=Math.pow(Q.h26sd*EXP_beta(Q),2),ve=Q.eps*Q.eps,vc=fd.s*fd.s+fr.s*fr.s,tv=vp+vh+ve+vc;
+  function row(n,v,why){return"<tr><td>"+n+"</td><td class='n'>"+Math.sqrt(v).toFixed(1)+"</td><td class='n'>"+Math.round(100*v/tv)+"%</td><td>"+why+"</td></tr>"}
+  $("#varTbl").innerHTML="<table><tr><th>Source of national uncertainty</th><th class='n'>SD (pts)</th><th class='n'>Share of variance</th><th>Why</th></tr>"+row("How much of 2026 persists",vp,"Spread of past cycles (6 observations)")+row("2026 count still incomplete",vh,"Reported 13 to 14, SD "+Q.h26sd+" times the persistence")+row("Candidate quality",vc,"Early polls, heavily shrunk")+row("Residual national error",ve,"Author-set")+"</table>";
+  extra.decomp={expected_margin:cum,steps:rows,win_by_stage:st.map(function(x){return{stage:x[0],win:x[1].p}})};
+}
+// ---------- Electoral College, pathways ----------
+function drawEV(){
+  var a=selD,b=selR,o=cache[a+"_"+b],n=N,s0=$("#ev");
+  $("#evTitle").textContent="Electoral votes and state pathways: "+DEM[a].k+" v "+REP[b].k;
+  $("#evSub").textContent="Democrat wins "+pc(o.p)+" (rounded ~"+r5(o.p)+"%). Median "+Math.round(o.ev[1])+" electoral votes; middle 80%: "+Math.round(o.ev[0])+" to "+Math.round(o.ev[2])+". The compact dial, if on, decides some wins by popular vote, so this chart shows the underlying state result.";
+  var A=svgSize("#ev",200),s=A[0],W=A[1],pl=30,pr=10,pt=14,pb=30,bw=20,nb=Math.ceil(539/bw),bins=new Array(nb).fill(0);
+  for(var i=0;i<n;i++)bins[Math.floor(o.evs[i]/bw)]++;var mx=Math.max.apply(null,bins),X=function(v){return pl+v/538*(W-pl-pr)},bwp=(W-pl-pr)/538*bw-2;
+  s.appendChild(el("line",{x1:pl,x2:W-pr,y1:200-pb,y2:200-pb,stroke:"var(--line)"}));
+  bins.forEach(function(c,k){if(!c)return;var h=c/mx*(200-pt-pb),lo=k*bw,r=el("rect",{x:X(lo)+1,y:200-pb-h,width:Math.max(1,bwp),height:h,rx:2,fill:lo+bw/2>=270?"var(--d)":"var(--r)",opacity:.85});r.onmousemove=function(e){showTip(e,lo+" to "+(lo+bw-1)+" EV<br>"+(c/n*100).toFixed(1)+"% of simulations")};r.onmouseleave=hideTip;s.appendChild(r)});
+  s.appendChild(el("line",{x1:X(270),x2:X(270),y1:pt-4,y2:200-pb,stroke:"var(--fg)","stroke-dasharray":"3 3"}));s.appendChild(el("text",{x:X(270)+5,y:pt+6,class:"lab"},"270 to win"));
+  [0,100,200,300,400,500].forEach(function(v){s.appendChild(el("text",{x:X(v),y:200-12,"text-anchor":"middle",class:"mono"},v))});s.appendChild(el("text",{x:pl,y:199},"Democratic electoral votes"));
+  // patterns
+  var cnt={},wn={},tot=n;for(i=0;i<n;i++){var p=o.pat[i];cnt[p]=(cnt[p]||0)+1;wn[p]=(wn[p]||0)+o.win[i]}
+  var list=Object.keys(cnt).map(function(k){return[+k,cnt[k],wn[k]/cnt[k]]}).sort(function(x,y){return y[1]-x[1]}).slice(0,8);
+  function sq(p){var h="";for(var k=0;k<7;k++)h+='<span class="sq" title="'+BG[k]+'" style="background:'+((p>>k)&1?"var(--d)":"var(--r)")+'"></span>';return h}
+  $("#patTbl").innerHTML="<table><tr><th>PA MI WI AZ GA NV NC</th><th class='n'>Share</th><th class='n'>D wins</th></tr>"+list.map(function(x){return"<tr><td>"+sq(x[0])+"</td><td class='n'>"+(x[1]/tot*100).toFixed(0)+"%</td><td class='n'>"+Math.round(x[2]*100)+"%</td></tr>"}).join("")+"</table>";
+  function pred(f){var c=0,w=0;for(var i=0;i<n;i++)if(f(o.pat[i])){c++;w+=o.win[i]}return[c/n,c?w/c:NaN]}
+  var named=[["Blue wall: PA, MI and WI all D",function(p){return(p&7)===7}],["Sun Belt four: AZ, GA, NV, NC all D",function(p){return(p>>3)===15}],["All seven D",function(p){return p===127}],["None of the seven D",function(p){return p===0}],["D loses PA",function(p){return!(p&1)}],["D wins PA",function(p){return(p&1)===1}]];
+  $("#pathTbl").innerHTML="<table><tr><th>Pathway</th><th class='n'>Share</th><th class='n'>D wins</th></tr>"+named.map(function(x){var r=pred(x[1]);return"<tr><td>"+x[0]+"</td><td class='n'>"+Math.round(r[0]*100)+"%</td><td class='n'>"+(isNaN(r[1])?"–":Math.round(r[1]*100)+"%")+"</td></tr>"}).join("")+"</table>";
+  var tp=[];for(var j=0;j<NS;j++)if(o.tip[j])tp.push([ST[j][0],o.tip[j]/n]);tp.sort(function(x,y){return y[1]-x[1]});tp=tp.slice(0,6);
+  var B=svgSize("#tip7",tp.length*22+26),t=B[0],W2=B[1];t.appendChild(el("text",{x:0,y:12,class:"lab"},"Tipping-point state: share of simulations"));
+  tp.forEach(function(x,i){var y=28+i*22;t.appendChild(el("text",{x:30,y:y+4,"text-anchor":"end"},x[0]));t.appendChild(el("rect",{x:36,y:y-7,width:Math.max(2,x[1]*(W2-110)*1.6),height:14,rx:2,fill:"var(--fg)",opacity:.75}));t.appendChild(el("text",{x:42+x[1]*(W2-110)*1.6,y:y+4,class:"lab mono"},Math.round(x[1]*100)+"%"))});
+  extra.paths=named.map(function(x){var r=pred(x[1]);return{pathway:x[0],share:r[0],d_wins:r[1]}});extra.tipping=tp;
+}
+function drawTable(){var h="<tr><th>Democrat</th><th>Republican</th><th class='n'>Win (given nominated)</th><th class='n'>Median margin</th><th class='n'>90% range</th><th class='n'>Median EV</th></tr>";
+  DEM.forEach(function(d,a){REP.forEach(function(r,b){var o=cache[a+"_"+b];h+="<tr><td>"+d.k+"</td><td>"+r.k+"</td><td class='n'>~"+r5(o.p)+"%</td><td class='n'>"+sg(o.m[2])+"</td><td class='n'>"+sg(o.m[0])+" to "+sg(o.m[4])+"</td><td class='n'>"+Math.round(o.ev[1])+"</td></tr>"})});$("#tbl").innerHTML=h}
+// ---------- audit ----------
+var AUD=[
+ ["2026 House margin","D+13.5, SD 1.0","CBS, CNBC, Yahoo, 3 to 5 Nov 2026 (reports of D+13 to 14)","Observed, incomplete","moderate","h26",[11,16]],
+ ["2024 House margin (baseline)","R+2.5 (as recorded)","MIT House file 2025-09-10; Ballotpedia R+3.1, others R+2.6","Observed","strong",null,null],
+ ["Persistence pattern","Six cycles pooled: mean 0.40, SD 0.47","Six presidential-margin cycles, 1994 to 2022 (Validation). Watergate kept separate.","Estimated from 6 points","weak","reg",["inc","open"]],
+ ["Spread of persistence","1.0x historical","Same","Estimated","weak","sig",[.6,1.4]],
+ ["Residual national error","SD 1.5 pts","Author","Assumed","weak","eps",[0,3.5]],
+ ["Regional correlations","Half of the 12-transition estimate","Presidential file 1976 to 2024: Rust Belt with South -0.68, West with Northeast -0.59, South with West -0.31, each about ±0.29. No shared South-West shock.","Estimated, shrunk","moderate","rcorr",[0,1]],
+ ["Regional swing differences","SD 2.5 pts","Presidential file 2012 to 2024: SD 5.5 (2012 to 16), 1.75, 1.74","Estimated, author-set","moderate","regsd",[1,5]],
+ ["State-specific noise","SD 1.75 pts","Same","Estimated","moderate","idio",[.75,3.5]],
+ ["Battleground elasticity","1.0","2024: about 0.6; 2020: about 1.0","Estimated","weak","el",[.6,1.1]],
+ ["Candidate effects","Poll gaps shrunk by 10 to 40%","Emerson, 16 to 17 Aug 2026, n=1000, ±3 (pre-midterm, one poll)","Observed, shrunk","weak","tau",[.5,3]],
+ ["Ideology penalty","0 pts","No general-election evidence found","Hypothetical, off","none","ideo",[0,4]],
+ ["Latino swing vs others","0 pts","NBC exit poll D+27 vs D+6 in 2024 (secondary reports); persistence already inside the national figure","Hypothetical, off","weak","latO",[-8,8]],
+ ["Latino share by state","My estimates","Pew eligible-voter shares, not looked up","Estimated","weak",null,null],
+ ["Running-mate effect","Weight 0.25, home bonus 1.5","Heersink and Peterson (2016): 2.67; secondary report","Literature, shrunk","weak","home",[0,2.67]],
+ ["Turnout bonus","0 pts","No data on candidate-driven turnout","Hypothetical, off","none","mobB",[0,2]],
+ ["Iran unresolved","0% (off)","Polls Apr to Jun 2026; effect size assumed","Hypothetical, off","weak","pIr",[0,60]],
+ ["Recession","0% (off)","Effect size assumed; correlated with tariffs and AI","Hypothetical, off","weak","pRec",[0,50]],
+ ["Tariffs","0% (off)","Cato/Morning Consult, Reuters/Ipsos Oct 2026; effect size assumed","Hypothetical, off","weak","pTar",[0,80]],
+ ["AI job losses","0% (off)","Fox, Reuters/Ipsos; effect size assumed","Hypothetical, off","weak","pAI",[0,60]],
+ ["Popular-vote compact","0% (off)","222 of 270 pledged (Axios, NPV); probability a guess","Hypothetical, off","weak","npv",[0,100]],
+ ["Popular-vote weights","2024 votes cast by state","Validated presidential file; ME and NE carry whole-state totals","Observed","strong",null,null],
+ ["2024 state margins","All 51 jurisdictions","Validated MIT presidential file; ME-2 and NE-2 from memory","Observed","strong",null,null]];
+var TORN=[];
+function drawAudit(){
+  var a=selD,b=selR,base=cache[a+"_"+b].p;TORN=[];
+  AUD.forEach(function(x){if(!x[5])return;var lo,hi,Qlo,Qhi;if(x[5]==="reg"){Qlo=cur({reg:"inc"});Qhi=cur({reg:"open"})}else{Qlo=cur();Qlo[x[5]]=x[6][0];Qhi=cur();Qhi[x[5]]=x[6][1]}
+    lo=sim(a,b,Qlo,false).p;hi=sim(a,b,Qhi,false).p;TORN.push({name:x[0],lo:lo,hi:hi,range:Math.abs(hi-lo)})});
+  var h="<tr><th>Input</th><th>Value</th><th>Source and date</th><th>Type</th><th>Evidence</th><th class='n'>Win range when varied</th></tr>";
+  AUD.forEach(function(x){var t=TORN.filter(function(z){return z.name===x[0]})[0],cls=x[4]==="strong"?"ok":(x[4]==="none"?"bad":"warn");
+    h+="<tr><td>"+x[0]+"</td><td>"+x[1]+"</td><td>"+x[2]+"</td><td>"+x[3]+"</td><td><span class='tag "+cls+"'>"+x[4]+"</span></td><td class='n'>"+(t?"~"+r5(Math.min(t.lo,t.hi))+" to ~"+r5(Math.max(t.lo,t.hi))+"%":"–")+"</td></tr>"});
+  $("#audit").innerHTML=h;
+  var T=TORN.slice().sort(function(x,y){return y.range-x.range}).slice(0,12),rowH=24,lab=210,A=svgSize("#torn",T.length*rowH+34),s=A[0],W=A[1],X=function(p){return lab+p*(W-lab-50)};
+  [0,.25,.5,.75,1].forEach(function(v){s.appendChild(el("line",{x1:X(v),x2:X(v),y1:4,y2:T.length*rowH+4,stroke:Math.abs(v-base)<.001?"var(--fg)":"var(--grid)"}));s.appendChild(el("text",{x:X(v),y:T.length*rowH+20,"text-anchor":"middle",class:"mono"},Math.round(v*100)+"%"))});
+  s.appendChild(el("line",{x1:X(base),x2:X(base),y1:4,y2:T.length*rowH+4,stroke:"var(--warn)","stroke-width":2,"stroke-dasharray":"4 3"}));
+  T.forEach(function(x,i){var y=16+i*rowH;s.appendChild(el("text",{x:lab-8,y:y+4,"text-anchor":"end"},x.name));s.appendChild(el("rect",{x:X(Math.min(x.lo,x.hi)),y:y-7,width:Math.max(2,X(Math.max(x.lo,x.hi))-X(Math.min(x.lo,x.hi))),height:14,rx:2,fill:"var(--d)",opacity:.8}));s.appendChild(el("text",{x:X(Math.max(x.lo,x.hi))+6,y:y+4,class:"lab mono"},"~"+r5(Math.min(x.lo,x.hi))+"–"+r5(Math.max(x.lo,x.hi))))});
+  extra.sensitivity=TORN.map(function(t){return{input:t.name,win_low:t.lo,win_high:t.hi}});
+}
+// ---------- validation ----------
+function t_(n){return{3:[1.638,2.353],4:[1.533,2.132],5:[1.476,2.015],6:[1.440,1.943]}[Math.min(6,Math.max(3,n-1))]}
+function loo(list){var rows=[],ae=[],ae0=[],ae1=[],c80=0,c90=0,q=t_(list.length-1);
+  list.forEach(function(c,i){var o=list.filter(function(_,j){return j!==i}).map(function(x){return x.beta}),m=mean(o),sdv=sd(o)*Math.sqrt(1+1/o.length),pred=c.Pp+m*c.S,err=c.Pn-pred,w80=q[0]*sdv*Math.abs(c.S),w90=q[1]*sdv*Math.abs(c.S),i80=Math.abs(err)<=w80,i90=Math.abs(err)<=w90;
+    ae.push(Math.abs(err));ae0.push(Math.abs(c.Pn-c.Pp));ae1.push(Math.abs(c.Pn-(c.Pp+c.S)));if(i80)c80++;if(i90)c90++;rows.push({c:c,pred:pred,err:err,w80:w80,i80:i80})});
+  return{rows:rows,mae:mean(ae),mae0:mean(ae0),mae1:mean(ae1),c80:c80,c90:c90,n:list.length}}
+function drawVal(){
+  var prim=CYC.filter(function(c){return c.y!==1974}),V=loo(prim),W7=loo(CYC),betas=prim.map(function(c){return c.beta}),w16=t_(prim.length)[0]*sd(betas)*Math.sqrt(1+1/prim.length)*16;
+  $("#valTbl").innerHTML="<table><tr><th>Cycle</th><th class='n'>Presidential before</th><th class='n'>Predicted from the other five</th><th class='n'>Actual</th><th class='n'>Error (pts)</th><th class='n'>80% interval</th><th class='n'>Inside?</th></tr>"+V.rows.map(function(r){var c=r.c;return"<tr><td>"+c.y+" to "+(c.y+2)+"</td><td class='n'>"+sg(c.Pp)+"</td><td class='n'>"+sg(r.pred)+"</td><td class='n'>"+sg(c.Pn)+"</td><td class='n'>"+(r.err>=0?"+":"")+r.err.toFixed(1)+"</td><td class='n'>±"+r.w80.toFixed(1)+"</td><td class='n'>"+(r.i80?"yes":"no")+"</td></tr>"}).join("")+"</table>";
+  $("#valNote").innerHTML="<b>Result, six comparable cycles.</b> Mean absolute error: persistence model "+V.mae.toFixed(1)+" pts, 'nothing changes' "+V.mae0.toFixed(1)+", full persistence "+V.mae1.toFixed(1)+". The persistence model did slightly <i>worse</i> than assuming nothing changes. The 80% interval held in "+V.c80+" of "+V.n+" cycles and the 90% interval in "+V.c90+" of "+V.n+". <b>Conclusion: the midterm swing has not been shown to predict the next presidential margin out of sample, and six cycles cannot separate a persistence of 0.40 from 0.</b> A fair 80% interval for 2028 at the 2026 swing is about ±"+w16.toFixed(0)+" pts, wider than the dial's default spread implies. The model is not validated at the state or candidate level: I did not assemble pre-election polls for earlier cycles, so those components are untested.<br><br><b>Sensitivity: adding Watergate.</b> Including 1974 to 1976 with its House-to-House coefficient (an inconsistent estimator) gives "+W7.mae.toFixed(1)+" against "+W7.mae0.toFixed(1)+" for nothing-changes, 80% interval "+W7.c80+" of 7, 90% "+W7.c90+" of 7. That version looked slightly favourable only because the 1972 landslide baseline makes the 1974 observation a 20.7-point miss for every rule. It is kept as a sensitivity row, not used for calibration.";
+  var d=[["As recorded",["-0.23","0.93","0.20","0.25","0.23","0.99"],"0.40","4.54 / 4.34"],["Matched-seat panel (2010: two-year only, 0.24)",["-0.25","0.98","n/a","0.26","0.23","n/a"],"0.31 (4 cycles)","not run"],["Imputed uncontested, 70% winner share",["-0.28","1.20","0.24","0.27","0.28","1.42"],"0.52","5.02 / 4.34"],["Imputed, 80%",["-0.25","0.97","0.21","0.28","0.24","1.13"],"0.43","4.61 / 4.34"],["Contested seats only",["-0.32","2.02","0.30","0.20","0.36","2.73"],"0.88 (SD 1.20)","7.19 / 4.34"],["Sensitivity: as recorded plus Watergate (House-based)",["-0.23","0.93","0.20","0.25","0.23","0.99"],"0.45 (7 cycles)","7.01 / 7.32"]];
+  $("#defTbl").innerHTML="<tr><th>Definition of the midterm swing</th><th class='n'>1994</th><th class='n'>2006</th><th class='n'>2010</th><th class='n'>2014</th><th class='n'>2018</th><th class='n'>2022</th><th class='n'>Mean</th><th class='n'>Backtest error: model / no change</th></tr>"+d.map(function(x){return"<tr><td>"+x[0]+"</td>"+x[1].map(function(v){return"<td class='n'>"+v+"</td>"}).join("")+"<td class='n'>"+x[2]+"</td><td class='n'>"+x[3]+"</td></tr>"}).join("");
+}
+// ---------- v1 vs v2 ----------
+function drawV1V2(){
+  var g=cache["6_2"],gv1=sim(6,2,cur({reg:"v1",ovm:0}),false),bv1=sim(0,0,cur({reg:"v1",ovm:0}),false);
+  $("#v1v2").innerHTML="<table><tr><th></th><th class='n'>Version 1 default</th><th class='n'>Version 2.1 default</th></tr><tr><td>Generic Democrat v generic Republican, win</td><td class='n'>84%</td><td class='n'>~"+r5(g.p)+"%</td></tr><tr><td>Buttigieg v Vance, win</td><td class='n'>91%</td><td class='n'>~"+r5(cache["0_0"].p)+"%</td></tr><tr><td>Ocasio-Cortez v Vance, win</td><td class='n'>69%</td><td class='n'>~"+r5(cache["5_0"].p)+"%</td></tr><tr><td>Generic v generic, Version 2 engine with Version 1's persistence (0.40 plus or minus 0.18), nothing hypothetical</td><td class='n'>84%</td><td class='n'>~"+r5(gv1.p)+"%</td></tr><tr><td>Buttigieg v Vance, same test</td><td class='n'>91%</td><td class='n'>~"+r5(bv1.p)+"%</td></tr><tr><td>Median national margin, generic v generic</td><td class='n'>D+6.2</td><td class='n'>"+sg(g.m[2])+"</td></tr><tr><td>90% range of that margin</td><td class='n'>R+3.4 to D+15.5</td><td class='n'>"+sg(g.m[0])+" to "+sg(g.m[4])+"</td></tr></table>";
+  $("#whyChanged").innerHTML="<b>Why the estimates moved.</b> The test rows show it: run with Version 1's own persistence assumption, Version 2 gives almost the same answers as Version 1, so the change is mainly the first reason below. (1) Persistence is now an empirical spread over six comparable cycles (SD 0.47) instead of 40% with SD 0.18, so the national margin is far more uncertain. (2) Hypothetical effects (Iran, tariffs, AI, recession, compact, turnout, ideology, Latino) are off by default; Version 1 had them on and they added about 0.75 pts for Democrats. (3) Candidate effects are Version 1's poll gaps shrunk by sampling error, and the extra progressive penalty is gone. (4) State noise is calibrated to 2016 to 2024. (5) Safe-state 2024 margins now come from the validated file; Version 1 had errors up to 3.9 pts (Mississippi), with no electoral-vote effect. Version 2 is not more certain that Democrats win. It is more candid about the range.";
+}
+// ---------- export ----------
+function drawExport(){drawVal();drawV1V2();
+  var out={model:VERSION,seed:+$("#seed").value,simulations:N,generated:new Date().toISOString(),settings:P,democratic_vp:VD&&VD.k,republican_vp:VR&&VR.k,cycles:CYC.map(function(c){return{midterm:c.y,swing:c.S,beta:c.beta,source:c.src}}),inputs_2026:{house_margin_reported:P.h26,house_2024:H24,pres_2024:P24},
+    candidate_effects:{democrats:DEM.map(function(d){var f=fx(d,P);return{k:d.k,effect:f.e,sd:f.s}}),republicans:REP.map(function(d){var f=fx(d,P);return{k:d.k,effect:f.e,sd:f.s}})},
+    matrix:DEM.map(function(d,a){return REP.map(function(r,b){var o=cache[a+"_"+b];return{d:d.k,r:r.k,win:o.p,median_margin:o.m[2],margin90:[o.m[0],o.m[4]],median_ev:o.ev[1]}})}),selected:{d:DEM[selD].k,r:REP[selR].k},extra:extra,status:"scenario analysis, not a validated forecast"};
+  $("#exportBox").value=JSON.stringify(out,null,1);$("#vername").textContent=VERSION;$("#verline").textContent="Version 2.1 · "+VERSION+" · seed "+$("#seed").value+" · "+N+" simulations per matchup · scenario analysis · built 5 Nov 2026";
+}
+// ---------- controls ----------
+var host=$("#controls"),ins={},outs={};
+CTL.forEach(function(c){if(c.sec){var s=document.createElement("div");s.className="sect";s.textContent=c.sec;host.appendChild(s)}
+  var d=document.createElement("div");d.className="ctl";d.innerHTML='<label for="c_'+c.id+'"><span>'+c.lab+'</span><output id="o_'+c.id+'"></output></label><input type="range" id="c_'+c.id+'" min="'+c.min+'" max="'+c.max+'" step="'+c.step+'"><small>'+c.help+'</small>';host.appendChild(d);
+  ins[c.id]=d.querySelector("input");outs[c.id]=d.querySelector("output");ins[c.id].oninput=function(){P[c.id]=+this.value;sync(false);sched()}});
+function sync(set){CTL.forEach(function(c){var v=P[c.id];if(set)ins[c.id].value=v;outs[c.id].textContent=(Math.round(v*100)/100)+c.u});$("#reg").value=P.reg;$("#regHelp").textContent=REGS[P.reg].help;$("#mechBox").hidden=P.reg!=="mech"}
+var rg=$("#reg");REGORDER.forEach(function(k){var o=document.createElement("option");o.value=k;o.textContent=REGS[k].lab;rg.appendChild(o)});rg.onchange=function(){P.reg=rg.value;sync(false);run()};
+var mb=$("#mechBox");mb.innerHTML=[["wT","Personal rejection of Trump"],["wR","Damage to the Republican brand"],["wD","Durable realignment"]].map(function(x){return'<div class="ctl"><label for="m_'+x[0]+'"><span>'+x[1]+'</span><output id="mo_'+x[0]+'"></output></label><input type="range" id="m_'+x[0]+'" min="0" max="1" step="0.05"></div>'}).join("")+'<small class="note">Weights are normalised. Not identified by the data.</small>';
+["wT","wR","wD"].forEach(function(k){var i=$("#m_"+k);i.value=P[k];$("#mo_"+k).textContent=P[k];i.oninput=function(){P[k]=+i.value;$("#mo_"+k).textContent=P[k];sched()}});
+var pb=$("#presets");PRE.forEach(function(p){var b=document.createElement("button");b.textContent=p[0];b.onclick=function(){var keep={seed:1};P=Object.assign({},DEF,p[1]);sync(true);["wT","wR","wD"].forEach(function(k){$("#m_"+k).value=P[k];$("#mo_"+k).textContent=P[k]});run()};pb.appendChild(b)});
+var a1=$("#vpd"),a2=$("#vpr");VPD.forEach(function(v,i){var o=document.createElement("option");o.value=i;o.textContent=v?v.k:"None (generic)";a1.appendChild(o)});VPR.forEach(function(v,i){var o=document.createElement("option");o.value=i;o.textContent=v?v.k:"None (generic)";a2.appendChild(o)});
+a1.onchange=function(){VD=VPD[+a1.value];run()};a2.onchange=function(){VR=VPR[+a2.value];run()};
+$("#seed").onchange=run;$("#nsim").onchange=run;
+$("#tblBtn").onclick=function(){var w=$("#tblWrap"),on=w.hidden;w.hidden=!on;this.setAttribute("aria-pressed",on);this.textContent=on?"Hide table":"Show table"};
+$("#copyBtn").onclick=function(){var t=$("#exportBox");t.select();try{navigator.clipboard.writeText(t.value).then(function(){$("#copyMsg").textContent="Copied."},function(){$("#copyMsg").textContent="Select the text and copy it."})}catch(e){$("#copyMsg").textContent="Select the text and copy it."}};
+sync(true);run();
+var rt=null;window.addEventListener("resize",function(){clearTimeout(rt);rt=setTimeout(function(){drawBeta();drawWG();drawFocus();drawAnalog();drawDecomp();drawEV();drawAudit()},150)});
+})();
+</script>
+
+</html>
