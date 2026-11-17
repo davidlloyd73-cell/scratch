@@ -217,9 +217,9 @@ function section(id,title,ac,icon,sub){
  el.appendChild(h('div',{class:'sec-h'},[h('span',{class:'badge',html:ICON[icon]}),h('h2',{},title),h('span',{class:'rule'})]));
  var g=h('div',{class:'grid'});el.appendChild(g);app.appendChild(el);return g}
 var cardN=0;
-function card(title,fresh,wide){var c=h('section',{class:'card'+(wide?' wide':'')});c.style.animationDelay=(Math.min(cardN++,10)*60)+'ms';var f=fresh||{};
- c.appendChild(h('div',{class:'head'},[h('h3',{},title),f.label?pill(f.state||'none',f.label):null]));
- if(f.note)c.appendChild(h('p',{class:'note'},f.note));return c}
+function card(title,fresh,wide,keep){var c=h('section',{class:'card'+(wide?' wide':'')});c.style.animationDelay=(Math.min(cardN++,10)*60)+'ms';var f=fresh||{};
+ c.appendChild(h('div',{class:'head'},[h('h3',{},title),(keep&&f.state==='old'&&f.label)?pill('old',f.label):null]));
+ return c}
 function itemsList(items,render){if(!items||!items.length)return h('p',{class:'note'},'Nothing to list today.');var u=h('ul',{class:'items'});items.forEach(function(i){u.appendChild(h('li',{},render(i)))});return u}
 function countUp(el,to,dec,pre,suf){
  var fin=(pre||'')+fmt(to,dec)+(suf||'');el.textContent=fin;
@@ -366,7 +366,6 @@ function build(){
  if(W&&W.now)chips.appendChild(h('span',{class:'chip'},[h('i',{style:'background:#0284c7'}),Math.round(W.now.t)+'°C '+wxText(W.now.code).toLowerCase()+' in '+(W.place||'Harrow')]));
  var owned=((D.shares||{}).tickers||[]).filter(function(x){return x.owned});
  if(owned.length){var up=owned.filter(function(x){return x.chg>=0}).length;chips.appendChild(h('span',{class:'chip'},[h('i',{style:'background:'+(up>=owned.length/2?'#16a34a':'#dc2626')}),'Owned shares: '+up+' up, '+(owned.length-up)+' down']))}
- var pc=(D.kpis||[])[0];if(pc)chips.appendChild(h('span',{class:'chip'},[h('i',{style:'background:#d97706'}),pc.v+' '+pc.l]));
  left.appendChild(chips);
  var mp=moonPhase(now);
  var right=h('div',{});
@@ -389,14 +388,18 @@ function build(){
 
  /* status strip */
  var strip=h('div',{class:'strip'});
- (D.kpis||[]).forEach(function(x){var col=x.s==='today'?'var(--ok)':x.s==='none'?'var(--bad)':x.s==='old'?'var(--warn)':'var(--muted)';
-  var b=h('b',{});var m=/^([^\d\-+$]*)(-?[\d,]*\.?\d+)(.*)$/.exec(String(x.v));
-  if(m&&m[2]){var num=parseFloat(m[2].replace(/,/g,''));var dec=(m[2].split('.')[1]||'').length;if(isFinite(num)&&!/\bof\b/.test(m[3])){countUp(b,num,dec,m[1],m[3])}else b.textContent=x.v}else b.textContent=x.v;
-  var dot=h('i');dot.style.background=col;strip.appendChild(h('div',{class:'kpi'},[b,h('span',{},[dot,x.l])]))});
- if((D.kpis||[]).length)app.appendChild(strip);
+ var tk=((D.shares||{}).tickers||[]),ow=tk.filter(function(x){return x.owned});
+ var kp=[];
+ if(ow.length){var best=ow.slice().sort(function(a,b){return b.chg-a.chg})[0],worst=ow.slice().sort(function(a,b){return a.chg-b.chg})[0];
+  kp.push([best.t+' '+(best.chg>=0?'+':'')+fmt(best.chg,1)+'%','best of your shares','var(--ok)']);
+  if(worst!==best)kp.push([worst.t+' '+(worst.chg>=0?'+':'')+fmt(worst.chg,1)+'%','weakest of your shares',worst.chg<0?'var(--bad)':'var(--ok)'])}
+ var nn=((D.nice||{}).items||[]).length,np=((D.news||{}).items||[]).length,ic=((D.icb||{}).today||[]).filter(function(x){return x.status==='changed'}).length;
+ kp.push([nn+'','NICE items this week','var(--c-prac)']);kp.push([np+'','GP news items','var(--c-mark)']);kp.push([ic+'','referral pages changed','var(--c-rest)']);
+ kp.slice(0,4).forEach(function(x){strip.appendChild(h('div',{class:'kpi'},[h('b',{},x[0]),h('span',{},[(function(){var d=h('i');d.style.background=x[2];return d})(),x[1]])]))});
+ app.appendChild(strip);
 
  /* nav */
- var secs=[['markets','Markets','var(--c-mark)'],['sky','Sky and day','var(--c-sky)'],['practice','Practice','var(--c-prac)'],['tech','Technology','var(--c-tech)'],['pause','Pause','var(--c-rest)'],['system','System','var(--c-sys)']];
+ var secs=[['markets','Markets','var(--c-mark)'],['sky','Sky and day','var(--c-sky)'],['practice','Practice','var(--c-prac)'],['tech','Technology','var(--c-tech)'],['pause','Pause','var(--c-rest)'],['system','Earlier days','var(--c-sys)']];
  var nav=h('nav',{class:'nav','aria-label':'Sections'});
  secs.forEach(function(x){var b=h('button',{type:'button'},[h('i'),x[1]]);b.style.setProperty('--ac',x[2]);b.addEventListener('click',function(){var el=document.getElementById('sec-'+x[0]);if(el)el.scrollIntoView({behavior:RM?'auto':'smooth',block:'start'})});nav.appendChild(b)});
  app.appendChild(nav);
@@ -404,7 +407,7 @@ function build(){
  /* ===== markets ===== */
  var g=section('markets','Markets','var(--c-mark)','chart');g.parentNode.style.setProperty('--ac','var(--c-mark)');
  var S=D.shares||{tickers:[],dates:[],catalysts:[],fresh:{}},c;
- c=card('Your shares',S.fresh,true);g.appendChild(c);
+ c=card('Your shares',S.fresh,true,true);g.appendChild(c);
  var cols=['var(--s1)','var(--s2)','var(--s3)','var(--s4)'];
  var ow=S.tickers.filter(function(x){return x.owned}),wl=S.tickers.filter(function(x){return !x.owned});
  var tiles=h('div',{class:'tiles'});
@@ -432,11 +435,11 @@ function build(){
 
  /* ===== sky and day ===== */
  g=section('sky','Sky and day','var(--c-sky)','sun');
- c=card('Weather in '+((W&&W.place)||'Harrow'),W?W.fresh:{state:'none',label:'Not collected today',note:'No weather feed today.'});g.appendChild(c);
+ c=card('Weather in '+((W&&W.place)||'Harrow'),W?W.fresh:{});if(W&&W.now)g.appendChild(c);
  if(W&&W.now){var now1=h('div',{class:'wx-now'});now1.appendChild(wxIcon(W.now.code,84));var tt=h('div',{class:'wx-t'});countUp(tt,Math.round(W.now.t),0,'','°');now1.appendChild(tt);
   now1.appendChild(h('div',{class:'wx-d'},[h('b',{},wxText(W.now.code)),h('span',{class:'note'},'Feels like '+Math.round(W.now.feels)+'°  ·  wind '+Math.round(W.now.wind)+' mph')]));c.appendChild(now1);
-  var days=h('div',{class:'days'});(W.days||[]).slice(0,6).forEach(function(d,i){var r=h('div',{class:'rainbar'});var bi=h('i');var rain=d.pop!=null?d.pop+'% rain':(d.mm!=null?d.mm+' mm rain':'');bi.style.width=Math.max(4,d.pop!=null?d.pop:Math.min(100,(d.mm||0)*10))+'%';r.appendChild(bi);
-   days.appendChild(h('div',{class:'day',title:wxText(d.code)+(rain?', '+rain:'')},[h('span',{class:'dn2'},i===0?'Today':dayName(d.d)),wxIcon(d.code,38),h('span',{class:'tmp'},Math.round(d.max)+'° / '+Math.round(d.min)+'°'),r,h('small',{class:'note'},rain)]))});c.appendChild(days)}
+  var days=h('div',{class:'days'});(W.days||[]).slice(0,6).forEach(function(d,i){var r=h('div',{class:'rainbar'});var bi=h('i');bi.style.width=Math.max(4,d.pop||0)+'%';r.appendChild(bi);
+   days.appendChild(h('div',{class:'day',title:wxText(d.code)+', '+(d.pop||0)+'% chance of rain'},[h('span',{class:'dn2'},i===0?'Today':dayName(d.d)),wxIcon(d.code,38),h('span',{class:'tmp'},Math.round(d.max)+'° / '+Math.round(d.min)+'°'),r,h('small',{class:'note'},(d.pop||0)+'% rain')]))});c.appendChild(days)}
  var c2=card('Sun and moon',{state:'today',label:'Computed here'});g.appendChild(c2);
  var mr=h('div',{class:'moonrow'});mr.appendChild(moonSvg(mp,74));
  mr.appendChild(h('div',{},[h('b',{},moonName(mp)),h('p',{class:'note'},Math.round((1-Math.cos(2*PI*mp))/2*100)+'% lit  ·  '+(mp<0.5?'getting brighter':'fading')+'  ·  next full moon in '+Math.round(((0.5-mp+1)%1)*29.53)+' days')]));c2.appendChild(mr);
@@ -510,18 +513,11 @@ function build(){
  c.appendChild(h('div',{class:'breathe'},[orb,btn,h('p',{class:'note'},'Four seconds in, hold, out, hold. Four rounds is about a minute.')]));
 
  /* ===== system ===== */
- g=section('system','System','var(--c-sys)','shield');
- var Hh=D.health;
- if(Hh&&Hh.rows){c=card('Did everything run?',Hh.fresh,true);g.appendChild(c);var L=h('div',{class:'lights'});
-  Hh.rows.forEach(function(r){var col=r.status==='yes'?'var(--ok)':r.status==='no'?'var(--bad)':r.status==='unverified'?'var(--warn)':'var(--muted)';
-   var d=h('span',{class:'dot'+(r.status==='yes'?' go':'')});d.style.setProperty('--dc',col);
-   var lab={yes:'published',no:'did not publish',unverified:'ran, cannot check',off:'switched off',due:'not due today'}[r.status]||r.status;
-   L.appendChild(h('div',{class:'light'},[d,h('div',{class:'lt'},[h('b',{},r.name),h('small',{},(r.where||'')+' · '+(r.due||'')+(r.note?' · '+r.note:''))]),h('div',{class:'lr'},[lab,h('br'),r.lastOutput?r.lastOutput:''])]))});
-  c.appendChild(L)}
- c=card('Earlier days',{state:'link',label:'Archive'},true);g.appendChild(c);
+ g=section('system','Earlier days','var(--c-sys)','shield');
+ c=card('Earlier days',{},true);g.appendChild(c);
  var ar=h('div',{class:'arch'});(D.archive||[]).forEach(function(d){ar.appendChild(h('a',{href:'archive/'+d+'.html'},shortDate(d)))});
  if(!(D.archive||[]).length)ar.appendChild(h('span',{class:'note'},'No archived days yet.'));c.appendChild(ar);
- c.appendChild(h('p',{class:'foot'},'The OSA brief runs on the Mac mini with its own checks and SleepWell figures are never copied here. A panel marked “Not collected today” has no data for today, which is different from a quiet day.'));
+
  draw();runCounters();firstDraw=false}
 function draw(){charts.forEach(function(c){c.box.innerHTML='';c.draw(c.box)})}
 build();
