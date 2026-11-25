@@ -1,0 +1,331 @@
+<title>Mortality Review Desk</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one worklist, stage tabs across the top, one search box; the selected case opens beside the list. */
+:root{
+  --bg:#f2f5f7; --surface:#ffffff; --sunk:#e9eef2; --ink:#15202b; --muted:#566473; --line:#d6dde4;
+  --accent:#0b5d6b; --accent-ink:#ffffff; --accent-soft:#dcedf0;
+  --s-new:#1b5ea6; --s-coroner:#66399c; --s-sjr:#8f5400; --s-closed:#45604f;
+  --warn:#a85100; --crit:#b3261e;
+  --font:"Public Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f151b; --surface:#172029; --sunk:#111a22; --ink:#e5ebf0; --muted:#95a3b1; --line:#2a3642;
+  --accent:#5fc3d2; --accent-ink:#05272c; --accent-soft:#153439;
+  --s-new:#82b7f0; --s-coroner:#bda1f2; --s-sjr:#e8b25c; --s-closed:#92b3a4;
+  --warn:#f0a94e; --crit:#ff8d83; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#0f151b; --surface:#172029; --sunk:#111a22; --ink:#e5ebf0; --muted:#95a3b1; --line:#2a3642;
+  --accent:#5fc3d2; --accent-ink:#05272c; --accent-soft:#153439;
+  --s-new:#82b7f0; --s-coroner:#bda1f2; --s-sjr:#e8b25c; --s-closed:#92b3a4;
+  --warn:#f0a94e; --crit:#ff8d83; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.45;
+  padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1320px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.top{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+h1{font-size:22px;font-weight:700;margin:0;letter-spacing:-.01em}
+.demo{font-size:13px;color:var(--muted);margin:2px 0 0}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:8px 14px;font-weight:600;cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+
+.tabs{display:flex;flex-wrap:wrap;gap:8px}
+.tab{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:8px 14px;cursor:pointer;
+  display:flex;flex-direction:column;align-items:flex-start;min-width:132px;text-align:left}
+.tab b{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
+.tab span{font-size:13px;color:var(--muted)}
+.tab[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.tab[aria-pressed="true"] span{color:var(--ink)}
+
+.filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.filters input[type=search]{flex:1 1 280px;min-width:0;padding:10px 12px;border:1px solid var(--line);border-radius:6px;background:var(--surface)}
+.filters select{padding:9px 10px;border:1px solid var(--line);border-radius:6px;background:var(--surface);max-width:100%}
+.check{display:flex;gap:6px;align-items:center;font-size:14px;white-space:nowrap}
+.count{font-size:13px;color:var(--muted);margin-left:auto;font-variant-numeric:tabular-nums}
+
+.main{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;align-items:start}
+.main.open{grid-template-columns:minmax(0,1fr) minmax(0,440px)}
+.listwrap{container-type:inline-size;min-width:0}
+.list{background:var(--surface);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.head,.row{display:grid;grid-template-columns:minmax(0,2fr) 104px minmax(0,1.6fr) 150px 110px minmax(0,1fr);gap:12px;align-items:center;padding:10px 14px}
+.head{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);background:var(--sunk);font-weight:600}
+.row{width:100%;border:0;border-top:1px solid var(--line);background:transparent;text-align:left;cursor:pointer}
+.row:hover{background:var(--sunk)}
+.row.sel{background:var(--accent-soft)}
+.row>div{min-width:0}
+.nm{font-weight:600;overflow-wrap:anywhere}
+.sub{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.days{font-size:13px;font-weight:600;font-variant-numeric:tabular-nums}
+.days.warn{color:var(--warn)} .days.crit{color:var(--crit)}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;padding:3px 9px;border-radius:999px;white-space:nowrap;
+  color:var(--c);background:color-mix(in srgb,var(--c) 14%,transparent)}
+.pill::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--c)}
+.st-new{--c:var(--s-new)} .st-coroner{--c:var(--s-coroner)} .st-sjr{--c:var(--s-sjr)} .st-closed{--c:var(--s-closed)}
+.flags{display:flex;gap:4px;flex-wrap:wrap}
+.flag{font-size:11px;font-weight:700;letter-spacing:.03em;border:1px solid var(--line);border-radius:4px;padding:1px 5px;color:var(--muted)}
+.empty{padding:28px 14px;color:var(--muted);text-align:center}
+@container (max-width:900px){
+  .head{display:none}
+  .row{grid-template-columns:minmax(0,1fr) auto;gap:4px 12px}
+  .row .c-loc,.row .c-me{grid-column:1/-1}
+  .row .c-me::before{content:"ME: "}
+  .row:first-of-type{border-top:0}
+}
+
+.detail{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:16px;position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px);min-width:0}
+.dh{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.dh h2{font-size:19px;margin:0;text-wrap:balance}
+.x{border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:4px 10px;cursor:pointer;white-space:nowrap}
+dl{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 14px;margin:0;font-size:14px}
+dt{color:var(--muted)} dd{margin:0;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.sec{display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--line);padding-top:14px}
+.sec h3{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin:0;font-weight:600}
+.sec label.ck{display:flex;gap:8px;align-items:flex-start}
+.cod{display:grid;grid-template-columns:28px minmax(0,1fr);gap:6px 8px;align-items:center}
+.cod label{font-weight:600;font-variant-numeric:tabular-nums}
+.cod input,.sec textarea,.sec select,.form input,.form select{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:var(--bg)}
+.sec textarea{min-height:76px;resize:vertical}
+.need{font-size:13px;color:var(--warn);margin:0}
+.log{list-style:none;margin:0;padding:0;font-size:13px;color:var(--muted);display:flex;flex-direction:column;gap:3px}
+.form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.form label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
+.form .wide{grid-column:1/-1}
+.toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 20px);transform:translateX(-50%);background:var(--ink);color:var(--bg);
+  padding:10px 16px;border-radius:6px;font-weight:600;max-width:calc(100% - 32px)}
+@media (max-width:960px){
+  .main.open{grid-template-columns:minmax(0,1fr)}
+  .main.open .listwrap{display:none}
+  .detail{position:static}
+  .form{grid-template-columns:minmax(0,1fr)}
+  .tab{min-width:0;flex:1 1 130px}
+}
+</style>
+
+<div class="wrap">
+  <div class="top">
+    <div>
+      <h1>Mortality Review Desk</h1>
+      <p class="demo">Prototype. Every patient, doctor and site here is invented. Changes are not saved when you reload.</p>
+    </div>
+    <div class="actions">
+      <button class="btn" id="copycsv" type="button">Copy list as CSV</button>
+      <button class="btn primary" id="addbtn" type="button">Add review</button>
+    </div>
+  </div>
+
+  <div class="tabs" id="tabs"></div>
+
+  <div class="filters">
+    <input type="search" id="q" placeholder="Search name, MRN, NHS number, ward or consultant" aria-label="Search reviews">
+    <select id="site" aria-label="Site"></select>
+    <select id="sort" aria-label="Sort order">
+      <option value="wait">Longest since death first</option>
+      <option value="recent">Most recent death first</option>
+      <option value="name">Surname A to Z</option>
+    </select>
+    <label class="check"><input type="checkbox" id="mine"> Assigned to me</label>
+    <span class="count" id="count"></span>
+  </div>
+
+  <div class="main" id="main">
+    <div class="listwrap"><div class="list" id="list"></div></div>
+    <div id="detail" hidden></div>
+  </div>
+</div>
+<div class="toast" id="toast" hidden role="status"></div>
+
+<script>
+(function(){
+const STAGES={new:'Awaiting scrutiny',coroner:'With coroner',sjr:'SJR pending',closed:'Closed'};
+const TABS=[['open','All open'],['new',STAGES.new],['coroner',STAGES.coroner],['sjr',STAGES.sjr],['closed',STAGES.closed]];
+const ME_LIST=['Me','Dr P. Achterberg','Dr S. Venkataraman','Dr L. Oyelaran','Unassigned'];
+const SITES=['Kingsmead General','Fernhill Hospital','St Aldwyn\'s'];
+const WARDS=[['Emergency Department','Emergency Medicine'],['Acute Medical Unit','Acute Medicine'],['Intensive Care','Critical Care'],['Ward 7','Elderly Care'],['Ward 12','Respiratory'],['Ward 4','Cardiology'],['Ward 9','Surgery'],['Ward 15','Oncology'],['Stroke Unit','Stroke Medicine']];
+const CONS=['Dr A. Okonkwo','Dr R. Halvorsen','Mr T. Brightwater','Dr N. Castellane','Dr H. Pemberley','Dr J. Marchetti','Dr F. Aldersey','Dr K. Yarrowby'];
+const FIRST=['Margaret','Arthur','Doreen','Kenneth','Sheila','Ronald','Pushpa','Winston','Eileen','Harold','Joyce','Bernard','Kamala','Desmond','Beryl','Stanley','Irene','Clive','Hyacinth','Leonard','Gwen','Rajan','Maureen','Cedric'];
+const FEM=['Margaret','Doreen','Sheila','Pushpa','Eileen','Joyce','Kamala','Beryl','Irene','Hyacinth','Gwen','Maureen'];
+const LAST=['Ashdown','Fairweather','Okafor-Lyle','Pettigrew','Ramsbottom','Thackeray','Venn','Whitlock','Yeoman','Drummond','Easterby','Gallimore','Halloran','Inskip','Jessop','Kettlewell','Lockhart','Merriweather','Nankivell','Oldroyd','Patel-Ross','Quarmby','Sowerby','Tredgold'];
+const CODS=[
+ {a:'Aspiration pneumonia',b:'Advanced Alzheimer\'s dementia',c:'',ii:'Type 2 diabetes mellitus'},
+ {a:'Acute myocardial infarction',b:'Coronary artery atherosclerosis',c:'',ii:'Hypertension'},
+ {a:'Sepsis',b:'Community acquired pneumonia',c:'',ii:'Chronic obstructive pulmonary disease'},
+ {a:'Metastatic adenocarcinoma of lung',b:'',c:'',ii:'Ischaemic heart disease'},
+ {a:'Intracerebral haemorrhage',b:'Hypertension',c:'',ii:'Atrial fibrillation'},
+ {a:'Congestive cardiac failure',b:'Ischaemic cardiomyopathy',c:'Coronary artery disease',ii:'Chronic kidney disease stage 4'},
+ {a:'Acute kidney injury',b:'Urosepsis',c:'',ii:'Frailty of old age'},
+ {a:'Pulmonary embolism',b:'Deep vein thrombosis',c:'Fractured neck of femur (operated)',ii:''}];
+
+let seed=20261125;
+function rnd(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}
+const pick=a=>a[Math.floor(rnd()*a.length)];
+const int=(lo,hi)=>lo+Math.floor(rnd()*(hi-lo+1));
+const DAY=864e5, today=new Date(); today.setHours(12,0,0,0);
+const fmt=d=>d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const daysSince=r=>Math.round((today-r.dod)/DAY);
+
+const recs=[]; let serial=1;
+function nextId(){return 'MR-'+String(serial++).padStart(4,'0')}
+for(let i=0;i<46;i++){
+  const x=rnd(), stage=x<.45?'new':x<.57?'coroner':x<.70?'sjr':'closed';
+  const ago={new:[0,6],coroner:[3,20],sjr:[5,30],closed:[4,40]}[stage];
+  const w=pick(WARDS), done=stage!=='new', cod=pick(CODS);
+  const fn=pick(FIRST);
+  const r={id:nextId(),first:fn,last:pick(LAST),sex:FEM.includes(fn)?'F':'M',age:int(58,97),
+    mrn:'K'+int(1000000,9999999),nhs:'999 '+int(100,999)+' '+int(1000,9999),
+    dod:new Date(today-int(ago[0],ago[1])*DAY),site:pick(SITES),ward:w[0],spec:w[1],cons:pick(CONS),
+    me:stage==='new'&&rnd()<.2?'Unassigned':pick(ME_LIST.slice(0,4)),stage,
+    notes:done||rnd()<.6,qap:done||rnd()<.4,family:done||rnd()<.3,
+    cod:done||rnd()<.4?{...cod}:{a:'',b:'',c:'',ii:''},
+    coroner:stage==='coroner'||(stage!=='new'&&rnd()<.1),sjr:stage==='sjr'||rnd()<.08,leder:rnd()<.05,
+    text:'',log:[]};
+  r.log.push(fmt(r.dod)+': review opened');
+  if(done) r.log.push(fmt(new Date(Math.min(+today,+r.dod+2*DAY)))+': scrutiny completed by '+r.me);
+  recs.push(r);
+}
+
+const state={tab:'open',q:'',site:'',sort:'wait',mine:false,sel:null,adding:false};
+const $=id=>document.getElementById(id);
+
+function matches(r){
+  if(state.tab==='open'?r.stage==='closed':r.stage!==state.tab) return false;
+  if(state.site&&r.site!==state.site) return false;
+  if(state.mine&&r.me!=='Me') return false;
+  if(state.q){
+    const hay=[r.id,r.first,r.last,r.mrn,r.nhs,r.nhs.replace(/ /g,''),r.ward,r.spec,r.cons,r.site,r.me].join(' ').toLowerCase();
+    return state.q.toLowerCase().split(/\s+/).filter(Boolean).every(t=>hay.includes(t));
+  }
+  return true;
+}
+function visible(){
+  const v=recs.filter(matches);
+  const by={wait:(a,b)=>a.dod-b.dod,recent:(a,b)=>b.dod-a.dod,name:(a,b)=>a.last.localeCompare(b.last)||a.first.localeCompare(b.first)}[state.sort];
+  return v.sort(by);
+}
+function dayClass(r){ if(r.stage!=='new') return ''; const d=daysSince(r); return d>=5?'crit':d>=3?'warn':'' }
+function flags(r){return [r.coroner&&'CORONER',r.sjr&&'SJR',r.leder&&'LeDeR'].filter(Boolean).map(f=>'<span class="flag">'+f+'</span>').join('')}
+
+function renderTabs(){
+  $('tabs').innerHTML=TABS.map(([k,l])=>{
+    const n=recs.filter(r=>k==='open'?r.stage!=='closed':r.stage===k).length;
+    return '<button class="tab" type="button" data-tab="'+k+'" aria-pressed="'+(state.tab===k)+'"><b>'+n+'</b><span>'+l+'</span></button>';
+  }).join('');
+}
+function renderList(){
+  const v=visible();
+  $('count').textContent=v.length+(v.length===1?' review':' reviews');
+  $('list').innerHTML='<div class="head"><div>Patient</div><div>Died</div><div>Location</div><div>Stage</div><div>Flags</div><div>Medical examiner</div></div>'+
+  (v.length?v.map(r=>{
+    const d=daysSince(r);
+    return '<button type="button" class="row'+(state.sel===r.id?' sel':'')+'" data-id="'+r.id+'">'+
+      '<div><div class="nm">'+esc(r.last.toUpperCase()+', '+r.first)+'</div><div class="sub">'+r.age+r.sex+' · '+r.mrn+' · '+r.id+'</div></div>'+
+      '<div><div>'+r.dod.toLocaleDateString('en-GB',{day:'numeric',month:'short'})+'</div><div class="days '+dayClass(r)+'">'+(d===0?'today':d+(d===1?' day':' days'))+'</div></div>'+
+      '<div class="c-loc"><div>'+esc(r.ward)+'</div><div class="sub">'+esc(r.site)+' · '+esc(r.cons)+'</div></div>'+
+      '<div><span class="pill st-'+r.stage+'">'+STAGES[r.stage]+'</span></div>'+
+      '<div class="flags">'+flags(r)+'</div>'+
+      '<div class="sub c-me">'+esc(r.me)+'</div></button>';
+  }).join(''):'<div class="empty">No reviews match. Clear the search or pick another stage.</div>');
+}
+function needs(r){
+  const n=[]; if(!r.notes)n.push('records review'); if(!r.qap)n.push('discussion with attending doctor'); if(!r.family)n.push('conversation with bereaved'); if(!r.cod.a.trim())n.push('cause of death 1a'); return n;
+}
+function actionLabel(r){
+  if(r.stage==='new') return r.coroner?'Complete scrutiny and refer to coroner':r.sjr?'Complete scrutiny and request SJR':'Complete scrutiny and close';
+  if(r.stage==='coroner') return r.sjr?'Coroner outcome received, move to SJR':'Coroner outcome received, close';
+  if(r.stage==='sjr') return 'SJR completed, close';
+  return 'Reopen review';
+}
+function renderAction(r){
+  const n=r.stage==='new'?needs(r):[];
+  $('act').innerHTML=(n.length?'<p class="need">Still needed: '+n.join(', ')+'.</p>':'')+
+    '<button class="btn primary" type="button" id="advance"'+(n.length?' disabled':'')+'>'+actionLabel(r)+'</button>';
+}
+function ck(id,label,on){return '<label class="ck"><input type="checkbox" id="'+id+'"'+(on?' checked':'')+'> <span>'+label+'</span></label>'}
+function renderDetail(){
+  const el=$('detail'); $('main').classList.toggle('open',!!(state.sel||state.adding));
+  if(state.adding){
+    el.hidden=false;
+    el.innerHTML='<div class="detail"><div class="dh"><h2>Add review</h2><button class="x" type="button" id="close">Back to list</button></div>'+
+      '<form class="form" id="newform"><label>First name<input id="n-first" required></label><label>Surname<input id="n-last" required></label>'+
+      '<label>MRN<input id="n-mrn" required></label><label>Date of death<input id="n-dod" type="date" required value="'+today.toISOString().slice(0,10)+'"></label>'+
+      '<label>Site<select id="n-site">'+SITES.map(s=>'<option>'+esc(s)+'</option>').join('')+'</select></label>'+
+      '<label>Ward<select id="n-ward">'+WARDS.map((w,i)=>'<option value="'+i+'">'+esc(w[0])+'</option>').join('')+'</select></label>'+
+      '<label class="wide">Responsible consultant<select id="n-cons">'+CONS.map(s=>'<option>'+esc(s)+'</option>').join('')+'</select></label>'+
+      '<div class="wide"><button class="btn primary" type="submit">Add to worklist</button></div></form></div>';
+    return;
+  }
+  const r=recs.find(x=>x.id===state.sel);
+  if(!r){el.hidden=true;el.innerHTML='';return}
+  el.hidden=false;
+  el.innerHTML='<div class="detail"><div class="dh"><div><h2>'+esc(r.last.toUpperCase()+', '+r.first)+'</h2><div class="sub">'+r.age+' years · '+(r.sex==='F'?'Female':'Male')+' · '+r.id+'</div></div><button class="x" type="button" id="close">Back to list</button></div>'+
+    '<div><span class="pill st-'+r.stage+'">'+STAGES[r.stage]+'</span> <span class="flags" style="display:inline-flex;vertical-align:middle">'+flags(r)+'</span></div>'+
+    '<dl><dt>MRN</dt><dd>'+r.mrn+'</dd><dt>NHS number</dt><dd>'+r.nhs+'</dd><dt>Died</dt><dd>'+fmt(r.dod)+' ('+daysSince(r)+' days ago)</dd>'+
+    '<dt>Location</dt><dd>'+esc(r.ward)+', '+esc(r.site)+'</dd><dt>Specialty</dt><dd>'+esc(r.spec)+'</dd><dt>Consultant</dt><dd>'+esc(r.cons)+'</dd></dl>'+
+    '<div class="sec"><h3>Medical examiner</h3><select id="f-me">'+ME_LIST.map(m=>'<option'+(m===r.me?' selected':'')+'>'+esc(m)+'</option>').join('')+'</select></div>'+
+    '<div class="sec"><h3>Scrutiny</h3>'+ck('f-notes','Records reviewed',r.notes)+ck('f-qap','Discussed with attending doctor',r.qap)+ck('f-family','Spoken to the bereaved',r.family)+'</div>'+
+    '<div class="sec"><h3>Agreed cause of death</h3><div class="cod">'+
+      ['a','b','c'].map(k=>'<label for="f-cod-'+k+'">1'+k+'</label><input id="f-cod-'+k+'" value="'+esc(r.cod[k])+'">').join('')+
+      '<label for="f-cod-ii">2</label><input id="f-cod-ii" value="'+esc(r.cod.ii)+'"></div></div>'+
+    '<div class="sec"><h3>Outcome</h3>'+ck('f-coroner','Refer to coroner',r.coroner)+ck('f-sjr','Structured judgement review (SJR) required',r.sjr)+ck('f-leder','Learning disability or autism (LeDeR notification)',r.leder)+'</div>'+
+    '<div class="sec"><h3>Notes</h3><textarea id="f-text" placeholder="Concerns raised, points for the certifying doctor, anything the next reader needs">'+esc(r.text)+'</textarea></div>'+
+    '<div class="sec" id="act"></div>'+
+    '<div class="sec"><h3>History</h3><ul class="log">'+r.log.map(l=>'<li>'+esc(l)+'</li>').join('')+'</ul></div></div>';
+  renderAction(r);
+}
+let tt; function toast(m){const t=$('toast');t.textContent=m;t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>t.hidden=true,2600)}
+function renderAll(){renderTabs();renderList();renderDetail()}
+
+$('site').innerHTML='<option value="">All sites</option>'+SITES.map(s=>'<option>'+esc(s)+'</option>').join('');
+$('q').addEventListener('input',e=>{state.q=e.target.value;renderList()});
+$('site').addEventListener('change',e=>{state.site=e.target.value;renderList()});
+$('sort').addEventListener('change',e=>{state.sort=e.target.value;renderList()});
+$('mine').addEventListener('change',e=>{state.mine=e.target.checked;renderList()});
+$('tabs').addEventListener('click',e=>{const b=e.target.closest('[data-tab]');if(b){state.tab=b.dataset.tab;renderTabs();renderList()}});
+$('list').addEventListener('click',e=>{const b=e.target.closest('[data-id]');if(b){state.sel=b.dataset.id;state.adding=false;renderList();renderDetail()}});
+$('addbtn').addEventListener('click',()=>{state.adding=true;state.sel=null;renderList();renderDetail();$('n-first').focus()});
+$('copycsv').addEventListener('click',()=>{
+  const q=s=>'"'+String(s).replace(/"/g,'""')+'"';
+  const csv=['ID,Surname,First name,MRN,NHS number,Date of death,Site,Ward,Consultant,Stage,Coroner,SJR,Medical examiner'].concat(
+    visible().map(r=>[r.id,r.last,r.first,r.mrn,r.nhs,r.dod.toISOString().slice(0,10),r.site,r.ward,r.cons,STAGES[r.stage],r.coroner?'Yes':'No',r.sjr?'Yes':'No',r.me].map(q).join(','))).join('\n');
+  const n=visible().length;
+  (navigator.clipboard?navigator.clipboard.writeText(csv):Promise.reject()).then(()=>toast('Copied '+n+' rows. Paste into Excel.'),()=>toast('Copying is blocked in this viewer.'));
+});
+$('detail').addEventListener('click',e=>{
+  if(e.target.id==='close'){state.sel=null;state.adding=false;renderList();renderDetail();return}
+  if(e.target.id==='advance'){
+    const r=recs.find(x=>x.id===state.sel); if(!r)return;
+    const was=r.stage;
+    r.stage=was==='new'?(r.coroner?'coroner':r.sjr?'sjr':'closed'):was==='coroner'?(r.sjr?'sjr':'closed'):was==='sjr'?'closed':'new';
+    r.log.push(fmt(today)+': '+(was==='closed'?'reopened':was==='new'?'scrutiny completed by '+r.me:'moved on from '+STAGES[was].toLowerCase())+', now '+STAGES[r.stage].toLowerCase());
+    toast(r.last+': '+STAGES[r.stage]); renderAll();
+  }
+});
+$('detail').addEventListener('input',e=>{
+  const r=recs.find(x=>x.id===state.sel); if(!r)return; const id=e.target.id, t=e.target;
+  if(id==='f-me') r.me=t.value;
+  else if(id==='f-text') r.text=t.value;
+  else if(id.startsWith('f-cod-')) r.cod[id.slice(6)]=t.value;
+  else if(['f-notes','f-qap','f-family','f-coroner','f-sjr','f-leder'].includes(id)) r[id.slice(2)]=t.checked;
+  else return;
+  renderList(); renderAction(r);
+});
+$('detail').addEventListener('submit',e=>{
+  e.preventDefault();
+  const w=WARDS[+$('n-ward').value], d=new Date($('n-dod').value+'T12:00:00');
+  const r={id:nextId(),first:$('n-first').value.trim(),last:$('n-last').value.trim(),sex:FEM.includes($('n-first').value.trim())?'F':'M',age:int(60,95),mrn:$('n-mrn').value.trim(),nhs:'999 '+int(100,999)+' '+int(1000,9999),
+    dod:isNaN(d)?new Date(today):d,site:$('n-site').value,ward:w[0],spec:w[1],cons:$('n-cons').value,me:'Me',stage:'new',notes:false,qap:false,family:false,
+    cod:{a:'',b:'',c:'',ii:''},coroner:false,sjr:false,leder:false,text:'',log:[fmt(today)+': review opened']};
+  recs.push(r); state.adding=false; state.sel=r.id; if(state.tab==='closed'||state.tab==='coroner'||state.tab==='sjr')state.tab='new';
+  toast('Added '+r.last+' to the worklist'); renderAll();
+});
+renderAll();
+})();
+</script>
