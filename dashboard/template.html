@@ -525,3 +525,25 @@ var rt;window.addEventListener('resize',function(){clearTimeout(rt);rt=setTimeou
 })();
 </script>
 <style>@keyframes grow2{from{transform:scaleY(0)}to{transform:scaleY(1)}}</style>
+<style>.install{max-width:1080px;margin:18px auto 0;display:flex;justify-content:flex-end}.install button{font:600 13px var(--sans);border:1px solid var(--line);background:var(--panel);color:var(--fg);border-radius:99px;padding:7px 16px;cursor:pointer}.install button:hover{border-color:var(--c-sky)}.install button:focus-visible{outline:3px solid var(--c-sky);outline-offset:2px}</style>
+<script>
+/* Desktop app. Installed from the Claude desktop app, this page runs in its own window with its own icon. Outside the Claude viewer (a local preview) window.claude is absent and nothing here runs. */
+(function(){
+function icon(){var c=document.createElement('canvas');c.width=c.height=256;var x=c.getContext('2d');
+ x.beginPath();x.roundRect(8,8,240,240,54);x.clip();
+ var g=x.createLinearGradient(0,0,180,256);g.addColorStop(0,'#5cc3ff');g.addColorStop(.55,'#bfe7ff');g.addColorStop(1,'#f6fbff');x.fillStyle=g;x.fillRect(0,0,256,256);
+ x.fillStyle='rgba(253,230,138,.55)';x.beginPath();x.arc(128,150,74,0,7);x.fill();
+ x.fillStyle='#fbbf24';x.beginPath();x.arc(128,150,48,0,7);x.fill();
+ x.fillStyle='#111a33';x.beginPath();x.moveTo(0,256);x.lineTo(0,176);x.quadraticCurveTo(70,150,128,178);x.quadraticCurveTo(190,206,256,166);x.lineTo(256,256);x.closePath();x.fill();
+ return c.toDataURL('image/png')}
+async function go(){
+ if(!window.claude||!window.claude.use)return;
+ var d=await window.claude.use('desktop');if(!d)return;
+ if(d.app&&d.app.dock)d.app.dock.setIcon(icon()).catch(function(){});
+ if(!d.install||(await d.install.state())!=='available')return;
+ var row=document.createElement('div');row.className='install';var b=document.createElement('button');b.type='button';b.textContent='Install as app';
+ b.addEventListener('click',function(){d.install.request().then(function(r){if(r==='installed')row.remove()}).catch(function(){})});
+ row.appendChild(b);document.body.appendChild(row)}
+go().catch(function(){});
+})();
+</script>
